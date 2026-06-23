@@ -109,6 +109,10 @@
 </head>
 <body class="bg-orange-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans antialiased transition-colors duration-300">
 
+    <script>
+        const API_KEY = "AIzaSyDPk8W7dr3sLKeao6oUlvaHNLYm8Sb6E7o";
+    </script>
+
     <div id="root-frame" class="w-full h-full relative overflow-hidden flex flex-col">
 
         <div id="auth-loading">
@@ -135,7 +139,7 @@
                         <div id="dot-3" class="w-2 h-2 rounded-full bg-gray-200 transition-colors"></div>
                     </div>
 
-                    <form id="demographics-form" class="relative">
+                    <form id="demographics-form" class="relative" onsubmit="handleOnboardingSubmit(event)">
                         
                         <div id="step-1" class="wizard-step active">
                             <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">Let's get to know you.</h3>
@@ -228,13 +232,17 @@
                     </div>
                     <div>
                         <span class="font-bold text-lg text-slate-900 dark:text-slate-100 tracking-tight block leading-none">Fireside</span>
-                        <span id="streak-display" class="text-[10px] text-orange-600 dark:text-orange-400 font-medium">🔥 Connected</span>
+                        <span id="streak-display" class="text-[10px] text-orange-600 dark:text-orange-400 font-medium">🔥 Active Session</span>
                     </div>
                 </div>
-                <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-orange-100 dark:hover:bg-slate-800 text-orange-500 transition" title="Toggle Theme">
-                    <i class="fa-solid fa-moon dark:hidden"></i>
-                    <i class="fa-solid fa-sun hidden dark:block text-yellow-400"></i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-orange-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition" title="Toggle Theme">
+                        <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
+                    </button>
+                    <button onclick="toggleProfileModal()" class="p-2 rounded-full hover:bg-orange-100 dark:hover:bg-slate-800 text-orange-400 transition" title="Profile & Goals">
+                        <i class="fa-solid fa-user-gear text-sm"></i>
+                    </button>
+                </div>
             </header>
 
             <div class="flex-1 overflow-hidden relative">
@@ -255,20 +263,22 @@
                         <div id="board-intro" class="fade-in">
                             <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-orange-100 dark:border-slate-700 shadow-card transition-colors duration-300">
                                 <div class="flex items-center space-x-2 mb-3"><div class="w-6 h-6 rounded-full bg-brand-100 dark:bg-brand-900/50 flex items-center justify-center"><i class="fa-solid fa-sparkles text-brand-600 dark:text-brand-400 text-xs"></i></div><h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">Daily Insight</h2></div>
-                                <p id="board-message" class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">Welcome to your dashboard. Chat with Fireside to populate localized recommendations.</p>
+                                <p id="board-message" class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">Let's talk to the assistant to automatically build your action plans.</p>
                             </div>
                         </div>
                         
                         <div class="flex items-center justify-between mt-2">
                             <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Action Plan</h3>
+                            <button onclick="forceRefreshBoard()" class="text-brand-600 dark:text-brand-500 text-xs font-semibold hover:text-brand-700 flex items-center gap-1"><i class="fa-solid fa-rotate-right"></i> Refresh Now</button>
+                        </div>
+                        
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                            <button onclick="sortResources('recommended')" data-sort="recommended" class="sort-btn active px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition whitespace-nowrap">Recommended</button>
+                            <button onclick="sortResources('eligibility')" data-sort="eligibility" class="sort-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition whitespace-nowrap">Eligibility</button>
+                            <button onclick="sortResources('type')" data-sort="type" class="sort-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition whitespace-nowrap">Type</button>
                         </div>
 
-                        <div id="board-content" class="space-y-4">
-                            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-orange-100 dark:border-slate-700">
-                                <h4 class="font-bold text-sm text-slate-800 dark:text-white">Complete onboarding setup</h4>
-                                <p class="text-xs text-gray-500 mt-1">Chat with Fireside to fine-tune local programmatic support matches.</p>
-                            </div>
-                        </div>
+                        <div id="board-content" class="space-y-4"></div>
                     </div>
                 </div>
                 
@@ -281,21 +291,27 @@
                             <div id="backpack-progress" class="mb-6">
                                 <div class="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
                                     <span>Digital Readiness</span>
-                                    <span id="backpack-percent">33%</span>
+                                    <span id="backpack-percent">0%</span>
                                 </div>
                                 <div class="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-2.5">
-                                    <div id="backpack-bar" class="bg-brand-500 h-2.5 rounded-full transition-all duration-500" style="width: 33%"></div>
+                                    <div id="backpack-bar" class="bg-brand-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
                                 </div>
                             </div>
 
-                            <div id="backpack-list" class="grid grid-cols-2 gap-3">
-                                <div class="p-3 border rounded-xl bg-orange-50/50 dark:bg-slate-800 border-orange-200 dark:border-slate-700">
-                                    <span class="text-xs font-bold block text-slate-700 dark:text-slate-300">Photo ID</span>
-                                    <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1 inline-block"><i class="fa-solid fa-circle-check"></i> Linked</span>
+                            <div id="backpack-list" class="grid grid-cols-2 gap-3"></div>
+                            
+                            <div class="mt-6 pt-4 border-t border-gray-100 dark:border-slate-700">
+                                <p class="text-xs font-bold text-slate-400 dark:text-slate-500 mb-2 uppercase tracking-wide">Add Slot to Wallet:</p>
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <button onclick="addPreset('Photo ID')" class="text-[10px] font-semibold px-2 py-1.5 rounded bg-gray-100 dark:bg-slate-700 hover:bg-brand-100 dark:hover:bg-brand-900/30 text-slate-600 dark:text-slate-300 transition border border-gray-200 dark:border-slate-600">+ Photo ID</button>
+                                    <button onclick="addPreset('SSN Card')" class="text-[10px] font-semibold px-2 py-1.5 rounded bg-gray-100 dark:bg-slate-700 hover:bg-brand-100 dark:hover:bg-brand-900/30 text-slate-600 dark:text-slate-300 transition border border-gray-200 dark:border-slate-600">+ SSN</button>
+                                    <button onclick="addPreset('Proof of Address')" class="text-[10px] font-semibold px-2 py-1.5 rounded bg-gray-100 dark:bg-slate-700 hover:bg-brand-100 dark:hover:bg-brand-900/30 text-slate-600 dark:text-slate-300 transition border border-gray-200 dark:border-slate-600">+ Address</button>
+                                    <button onclick="addPreset('Pay Stubs')" class="text-[10px] font-semibold px-2 py-1.5 rounded bg-gray-100 dark:bg-slate-700 hover:bg-brand-100 dark:hover:bg-brand-900/30 text-slate-600 dark:text-slate-300 transition border border-gray-200 dark:border-slate-600">+ Pay Stubs</button>
                                 </div>
-                                <div class="p-3 border rounded-xl bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
-                                    <span class="text-xs font-bold block text-slate-400 dark:text-slate-500">Proof of Address</span>
-                                    <span class="text-[10px] text-gray-400 mt-1 inline-block">Empty Slot</span>
+
+                                <div class="flex gap-2">
+                                    <input type="text" id="new-doc-input" placeholder="Custom Label..." class="flex-1 px-3 py-2 border rounded-lg text-sm focus:border-brand-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400">
+                                    <button onclick="addBackpackItem()" class="bg-slate-800 dark:bg-slate-600 text-white w-10 rounded-lg flex items-center justify-center hover:bg-slate-900 transition"><i class="fa-solid fa-plus"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -308,11 +324,20 @@
                             <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Daily Check-in</h2>
                             <p id="checkin-subtitle" class="text-sm text-slate-500 dark:text-slate-400 mb-6">How are you feeling today?</p>
                             <div id="mood-buttons" class="flex justify-between items-center px-2 mb-4">
-                                <button class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😫</div><span class="text-[10px] font-bold text-gray-400">Rough</span></button>
-                                <button class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😕</div><span class="text-[10px] font-bold text-gray-400">Okay</span></button>
-                                <button class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😐</div><span class="text-[10px] font-bold text-gray-400">Fine</span></button>
-                                <button class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">🙂</div><span class="text-[10px] font-bold text-gray-400">Good</span></button>
-                                <button class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😁</div><span class="text-[10px] font-bold text-gray-400">Great</span></button>
+                                <button onclick="logMood(1)" class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😫</div><span class="text-[10px] font-bold text-gray-400 group-hover:text-red-500">Rough</span></button>
+                                <button onclick="logMood(2)" class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😕</div><span class="text-[10px] font-bold text-gray-400 group-hover:text-orange-500">Okay</span></button>
+                                <button onclick="logMood(3)" class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😐</div><span class="text-[10px] font-bold text-gray-400 group-hover:text-yellow-500">Fine</span></button>
+                                <button onclick="logMood(4)" class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">🙂</div><span class="text-[10px] font-bold text-gray-400 group-hover:text-green-500">Good</span></button> <button onclick="logMood(5)" class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😁</div><span class="text-[10px] font-bold text-gray-400 group-hover:text-green-600">Great</span></button>
+                            </div>
+                            <div id="checkin-locked" class="hidden absolute inset-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm flex flex-col items-center justify-center z-10"><div class="w-10 h-10 bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mb-2"><i class="fa-solid fa-check"></i></div><h3 class="font-bold text-slate-800 dark:text-slate-100">All set for today!</h3><p class="text-xs text-slate-500 dark:text-slate-400">Come back tomorrow to track your progress.</p></div>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm transition-colors duration-300">
+                            <h3 class="font-bold text-sm text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-user-doctor text-blue-600 dark:text-blue-400"></i> Find Professional Help</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Connect with verified counselors and support groups in your area.</p>
+                            <div class="space-y-3">
+                                <a href="https://www.psychologytoday.com" target="_blank" class="w-full py-3 bg-blue-50 dark:bg-slate-700/50 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-slate-600 rounded-xl text-sm font-semibold hover:bg-blue-100 dark:hover:bg-slate-700 flex items-center justify-between px-4 transition"><span>Search Psychology Today</span><i class="fa-solid fa-arrow-up-right-from-square text-xs"></i></a>
+                                <a href="https://findtreatment.gov" target="_blank" class="w-full py-3 bg-emerald-50 dark:bg-slate-700/50 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-slate-600 rounded-xl text-sm font-semibold hover:bg-emerald-100 dark:hover:bg-slate-700 flex items-center justify-between px-4 transition"><span>SAMHSA Treatment Locator</span><i class="fa-solid fa-arrow-up-right-from-square text-xs"></i></a>
                             </div>
                         </div>
                     </div>
@@ -324,210 +349,374 @@
                 <form id="chat-form" class="flex gap-2 items-end">
                     <button type="button" id="voice-btn" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition mb-[2px]"><i class="fa-solid fa-microphone"></i></button>
                     <input type="text" id="chat-input" class="flex-1 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-2xl px-4 py-3 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition border border-gray-100 dark:border-slate-700 dark:placeholder-slate-500" placeholder="Type a message..." autocomplete="off">
-                    <button type="submit" class="bg-brand-600 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-brand-700 transition shadow-sm mb-[2px]"><i class="fa-solid fa-arrow-up text-sm"></i></button>
+                    <button type="submit" class="bg-brand-600 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-brand-700 transition mb-[2px]"><i class="fa-solid fa-paper-plane text-xs"></i></button>
                 </form>
             </div>
 
-            <nav class="glass-nav h-[60px] flex justify-around items-center z-30 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] transition-colors duration-300">
-                <button onclick="switchTab('chat')" id="tab-chat" class="flex flex-col items-center justify-center w-full h-full space-y-1 text-brand-600 transition-colors duration-200"><i class="fa-regular fa-message text-lg"></i><span class="text-[10px] font-medium">Chat</span></button>
-                <button onclick="switchTab('board')" id="tab-board" class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-brand-600 transition-colors duration-200"><i class="fa-regular fa-clipboard text-lg"></i><span class="text-[10px] font-medium">Bulletin</span></button>
-                <button onclick="switchTab('backpack')" id="tab-backpack" class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-brand-600 transition-colors duration-200"><i class="fa-solid fa-wallet text-lg"></i><span class="text-[10px] font-medium">Wallet</span></button>
-                <button onclick="switchTab('wellness')" id="tab-wellness" class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-brand-600 transition-colors duration-200"><i class="fa-regular fa-heart text-lg"></i><span class="text-[10px] font-medium">Wellness</span></button>
+            <nav class="glass-nav absolute bottom-0 inset-x-0 h-[60px] z-30 flex items-center justify-around px-2 pb-safe">
+                <button onclick="switchView('chat')" id="nav-chat" class="flex flex-col items-center justify-center text-brand-600 font-bold transition flex-1 py-1"><i class="fa-solid fa-comment-dots text-lg mb-0.5"></i><span class="text-[10px]">Chat</span></button>
+                <button onclick="switchView('board')" id="nav-board" class="flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 font-medium transition flex-1 py-1"><i class="fa-solid fa-rectangle-list text-lg mb-0.5"></i><span class="text-[10px]">Plan</span></button>
+                <button onclick="switchView('backpack')" id="nav-backpack" class="flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 font-medium transition flex-1 py-1"><i class="fa-solid fa-wallet text-lg mb-0.5"></i><span class="text-[10px]">Wallet</span></button>
+                <button onclick="switchView('wellness')" id="nav-wellness" class="flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 font-medium transition flex-1 py-1"><i class="fa-solid fa-heart-pulse text-lg mb-0.5"></i><span class="text-[10px]">Wellness</span></button>
             </nav>
 
+        </div>
+
+    </div>
+
+    <div id="profile-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl relative fade-in max-h-[90vh] overflow-y-auto">
+            <button onclick="toggleProfileModal()" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Profile & Settings</h3>
+            <div class="space-y-4 text-sm text-slate-700 dark:text-slate-300">
+                <div>
+                    <span class="block text-xs text-gray-400 font-bold uppercase">User Profile</span>
+                    <p id="profile-summary" class="font-medium text-slate-800 dark:text-slate-200 mt-1"></p>
+                </div>
+                <hr class="border-gray-100 dark:border-slate-700">
+                <div>
+                    <span class="block text-xs text-gray-400 font-bold uppercase mb-2">Reset Session</span>
+                    <button onclick="clearAllData()" class="w-full bg-red-50 text-red-600 border border-red-200 py-2.5 rounded-xl font-semibold hover:bg-red-100 transition">Clear Data & Restart</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Global User Demographics Store
-        let userProfile = { name: "User", age: "", zip: "", size: 1, income: 0, taxes: 0, goal: "other" };
-        let currentMessages = [];
+        let userData = null;
+        let walletItems = [
+            { id: '1', name: 'Photo ID', status: 'missing' },
+            { id: '2', name: 'SSN Card', status: 'missing' },
+            { id: '3', name: 'Proof of Address', status: 'missing' }
+        ];
+        let chatHistory = [];
 
+        // Application Lifecyle Initialization
         window.addEventListener('DOMContentLoaded', () => {
-            // Dismiss Loading View
-            setTimeout(() => {
-                document.getElementById('auth-loading').style.opacity = '0';
+            // Load saved state
+            const savedUser = localStorage.getItem('fireside_user');
+            const savedWallet = localStorage.getItem('fireside_wallet');
+            const savedChat = localStorage.getItem('fireside_chat');
+            const savedTheme = localStorage.getItem('fireside_theme');
+
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun text-sm';
+            }
+
+            if (savedWallet) walletItems = JSON.parse(savedWallet);
+            if (savedChat) chatHistory = JSON.parse(savedChat);
+
+            // Turn off loader immediately and show correct screen context
+            const overlay = document.getElementById('auth-loading');
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 500);
+
+            if (savedUser) {
+                userData = JSON.parse(savedUser);
+                document.getElementById('app-view').classList.remove('hidden');
+                renderBackpack();
+                renderChatHistory();
+                if (chatHistory.length === 0) {
+                    sendSystemGreeting();
+                }
+            } else {
+                document.getElementById('onboarding-view').classList.remove('hidden');
+            }
+        </script>
+
+        <script>
+            function nextStep(stepNum) {
+                document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('[id^="dot-"]').forEach(el => el.className = 'w-2 h-2 rounded-full bg-gray-200 transition-colors');
+                
+                document.getElementById(`step-${stepNum}`).classList.add('active');
+                document.getElementById(`dot-${stepNum}`).className = 'w-2 h-2 rounded-full bg-orange-600 transition-colors';
+            }
+
+            function handleOnboardingSubmit(e) {
+                e.preventDefault();
+                userData = {
+                    name: document.getElementById('user-name').value || 'User',
+                    age: document.getElementById('user-age').value || '25',
+                    zip: document.getElementById('user-location').value || '10001',
+                    householdSize: document.getElementById('user-size').value || '1',
+                    income: document.getElementById('user-income').value || '0',
+                    taxes: document.getElementById('user-taxes').value || '0',
+                    goal: document.getElementById('user-issue').value
+                };
+                localStorage.setItem('fireside_user', JSON.stringify(userData));
+                
+                document.getElementById('onboarding-view').classList.add('fade-in');
                 setTimeout(() => {
-                    document.getElementById('auth-loading').classList.add('hidden');
-                    document.getElementById('onboarding-view').classList.remove('hidden');
-                }, 500);
-            }, 800);
+                    document.getElementById('onboarding-view').classList.add('hidden');
+                    document.getElementById('app-view').classList.remove('hidden');
+                    renderBackpack();
+                    sendSystemGreeting();
+                }, 300);
+            }
+        </script>
 
-            setupVoiceInput();
-        });
+        <script>
+            function switchView(viewId) {
+                document.getElementById('chat-section').classList.add('hidden');
+                document.getElementById('board-section').classList.add('hidden');
+                document.getElementById('backpack-section').classList.add('hidden');
+                document.getElementById('wellness-section').classList.add('hidden');
+                document.getElementById('chat-input-area').classList.add('hidden');
 
-        // Wizard steps management
-        function nextStep(stepNumber) {
-            document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active'));
-            document.querySelectorAll('[id^="dot-"]').forEach(dot => dot.className = 'w-2 h-2 rounded-full bg-gray-200 transition-colors');
-            
-            document.getElementById(`step-${stepNumber}`).classList.add('active');
-            document.getElementById(`dot-${stepNumber}`).className = 'w-2 h-2 rounded-full bg-orange-600 transition-colors';
-        }
+                // Standardize nav style selectors
+                document.querySelectorAll('nav button').forEach(btn => {
+                    btn.className = 'flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 font-medium transition flex-1 py-1';
+                });
 
-        // Dark Mode Handler
-        function toggleDarkMode() {
-            document.documentElement.classList.toggle('dark');
-        }
+                document.getElementById(`${viewId}-section`).classList.remove('hidden');
+                document.getElementById(`nav-${viewId}`).className = 'flex flex-col items-center justify-center text-brand-600 font-bold transition flex-1 py-1';
+                
+                if (viewId === 'chat') {
+                    document.getElementById('chat-input-area').classList.remove('hidden');
+                }
+                if (viewId === 'board') {
+                    generateBoardContent();
+                }
+            }
 
-        // Tab Switching Handler
-        function switchTab(tabId) {
-            const sections = ['chat', 'board', 'backpack', 'wellness'];
-            sections.forEach(s => {
-                document.getElementById(`${s}-section`).classList.add('hidden');
-                const btn = document.getElementById(`tab-${s}`);
-                btn.classList.remove('text-brand-600');
-                btn.classList.add('text-gray-400');
+            function toggleProfileModal() {
+                const modal = document.getElementById('profile-modal');
+                if(modal.classList.contains('hidden')) {
+                    if(userData) {
+                        document.getElementById('profile-summary').innerText = `${userData.name}, Age ${userData.age}\nZip: ${userData.zip}\nGoal: ${userData.goal.toUpperCase()}`;
+                    }
+                    modal.classList.remove('hidden');
+                } else {
+                    modal.classList.add('hidden');
+                }
+            }
+
+            function toggleDarkMode() {
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('fireside_theme', isDark ? 'dark' : 'light');
+                document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-sm' : 'fa-solid fa-moon text-sm';
+            }
+
+            function clearAllData() {
+                localStorage.clear();
+                window.location.reload();
+            }
+        </script>
+
+        <script>
+            function addMessage(sender, text) {
+                const container = document.getElementById('chat-container');
+                const messageWrapper = document.createElement('div');
+                messageWrapper.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} fade-in`;
+                
+                const msgBubble = document.createElement('div');
+                msgBubble.className = `max-w-[85%] px-4 py-2.5 text-sm ${sender === 'user' ? 'msg-user' : 'msg-ai prose'}`;
+                
+                if (sender === 'user') {
+                    msgBubble.innerText = text;
+                } else {
+                    msgBubble.innerHTML = marked.parse(text);
+                }
+                
+                messageWrapper.appendChild(msgBubble);
+                container.appendChild(messageWrapper);
+                container.scrollTop = container.scrollHeight;
+            }
+
+            function showTypingIndicator() {
+                const container = document.getElementById('chat-container');
+                const id = 'typing-indicator';
+                if (document.getElementById(id)) return;
+
+                const wrapper = document.createElement('div');
+                wrapper.id = id;
+                wrapper.className = 'flex justify-start fade-in';
+                wrapper.innerHTML = `
+                    <div class="msg-ai px-4 py-3 flex items-center space-x-1">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                    </div>`;
+                container.appendChild(wrapper);
+                container.scrollTop = container.scrollHeight;
+            }
+
+            function hideTypingIndicator() {
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) indicator.remove();
+            }
+
+            function sendSystemGreeting() {
+                const welcome = `Hi **${userData.name}**, welcome to your Fireside command station! I've targeted customized localized paths for context **${userData.goal}** in zip **${userData.zip}**. Tell me a bit about what specific resources you are hunting down right now!`;
+                addMessage('ai', welcome);
+                chatHistory.push({ role: 'model', parts: [{ text: welcome }] });
+                localStorage.setItem('fireside_chat', JSON.stringify(chatHistory));
+            }
+
+            document.getElementById('chat-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const input = document.getElementById('chat-input');
+                const text = input.value.trim();
+                if (!text) return;
+
+                input.value = '';
+                addMessage('user', text);
+                chatHistory.push({ role: 'user', parts: [{ text: text }] });
+                localStorage.setItem('fireside_chat', JSON.stringify(chatHistory));
+
+                showTypingIndicator();
+
+                // Format accurate context injector
+                const systemPrompt = `You are Fireside, an empathetic, premium navigator helping people map action items. The user profile is: Name ${userData.name}, Age ${userData.age}, Location Zip ${userData.zip}, Household Size ${userData.householdSize}, Annual Income $${userData.income}. Respond natively using markdown formatting and present clear actionable items with bullet lists where helpful. Keep response concise, warm, and highly relevant.`;
+
+                try {
+                    // Unified model selection via standard endpoint path structure
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [
+                                { role: 'user', parts: [{ text: systemPrompt }] },
+                                ...chatHistory
+                            ]
+                        })
+                    });
+
+                    const data = await response.json();
+                    hideTypingIndicator();
+
+                    if (data.candidates && data.candidates[0].content.parts[0].text) {
+                        const aiReply = data.candidates[0].content.parts[0].text;
+                        addMessage('ai', aiReply);
+                        chatHistory.push({ role: 'model', parts: [{ text: aiReply }] });
+                        localStorage.setItem('fireside_chat', JSON.stringify(chatHistory));
+                    } else {
+                        addMessage('ai', "I encountered a processing error parsing the request. Please type your message again.");
+                    }
+                } catch (error) {
+                    hideTypingIndicator();
+                    addMessage('ai', "Network error. Make sure you are connected to the internet and try again.");
+                }
             });
 
-            document.getElementById(`${tabId}-section`).classList.remove('hidden');
-            document.getElementById(`tab-${tabId}`).classList.add('text-brand-600');
-            document.getElementById(`tab-${tabId}`).classList.remove('text-gray-400');
-
-            // Hide or show lower chat text container bar conditionally
-            if (tabId === 'chat') {
-                document.getElementById('chat-input-area').classList.remove('hidden');
-            } else {
-                document.getElementById('chat-input-area').classList.add('hidden');
+            function renderChatHistory() {
+                const container = document.getElementById('chat-container');
+                container.innerHTML = '';
+                chatHistory.forEach(msg => {
+                    const sender = msg.role === 'user' ? 'user' : 'ai';
+                    addMessage(sender, msg.parts[0].text);
+                });
             }
-        }
+        </script>
 
-        // Capture Demographic Information
-        document.getElementById('demographics-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            userProfile.name = document.getElementById('user-name').value || "User";
-            userProfile.age = document.getElementById('user-age').value;
-            userProfile.zip = document.getElementById('user-location').value;
-            userProfile.size = document.getElementById('user-size').value;
-            userProfile.income = document.getElementById('user-income').value;
-            userProfile.taxes = document.getElementById('user-taxes').value;
-            userProfile.goal = document.getElementById('user-issue').value;
+        <script>
+            function renderBackpack() {
+                const grid = document.getElementById('backpack-list');
+                grid.innerHTML = '';
+                let verifiedCount = 0;
 
-            document.getElementById('onboarding-view').classList.add('hidden');
-            document.getElementById('app-view').classList.remove('hidden');
-
-            // Set up context baseline
-            const initialGreeting = `Hello **${userProfile.name}**! I've set your primary navigation focus area to **${userProfile.goal}** inside the **${userProfile.zip}** region. How can I help you find stability or specific local aid programs today?`;
-            addMessage('ai', initialGreeting);
-        });
-
-        // Append UI Chat bubbles
-        function addMessage(sender, text) {
-            const container = document.getElementById('chat-container');
-            const wrapper = document.createElement('div');
-            wrapper.className = `flex w-full ${sender === 'user' ? 'justify-end' : 'justify-start'} fade-in mb-4`;
-            
-            const msgBubble = document.createElement('div');
-            msgBubble.className = `max-w-[80%] p-3 text-sm prose ${sender === 'user' ? 'msg-user' : 'msg-ai'}`;
-            msgBubble.innerHTML = marked.parse(text);
-            
-            wrapper.appendChild(msgBubble);
-            container.appendChild(wrapper);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        // Show a quick typing loader
-        function showTypingIndicator() {
-            const container = document.getElementById('chat-container');
-            const wrapper = document.createElement('div');
-            wrapper.id = "typing-indicator";
-            wrapper.className = "flex w-full justify-start fade-in mb-4";
-            wrapper.innerHTML = `
-                <div class="msg-ai p-3 flex items-center space-x-1">
-                    <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
-                    <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
-                    <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
-                </div>`;
-            container.appendChild(wrapper);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function removeTypingIndicator() {
-            const indicator = document.getElementById('typing-indicator');
-            if (indicator) indicator.remove();
-        }
-
-        // Core Conversation Submit Hook matching api.js proxy route
-        document.getElementById('chat-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const inputEl = document.getElementById('chat-input');
-            const text = inputEl.value.trim();
-            if (!text) return;
-
-            addMessage('user', text);
-            inputEl.value = '';
-
-            // Inject structural demographic profile contexts contextually
-            const systemContext = `You are Fireside, an empathetic smart navigation assistant. The user is ${userProfile.name}, aged ${userProfile.age}, living in ZIP code ${userProfile.zip}. Household size: ${userProfile.size}, Annual Income: $${userProfile.income}, Goal context: ${userProfile.goal}. Focus on guiding them to localized programs, legal rights, and actionable assistance steps. Use clean Markdown elements.`;
-
-            // Setup messages format for NIM API array structure
-            if (currentMessages.length === 0) {
-                currentMessages.push({ role: "system", content: systemContext });
-            }
-            currentMessages.push({ role: "user", content: text });
-
-            showTypingIndicator();
-
-            try {
-                // Pointing securely to the local api.js endpoint proxy
-                const response = await fetch("/api", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ messages: currentMessages })
+                walletItems.forEach(item => {
+                    if (item.status === 'verified') verifiedCount++;
+                    const isVerified = item.status === 'verified';
+                    
+                    const card = document.createElement('button');
+                    card.onclick = () => toggleItemStatus(item.id);
+                    card.className = `p-4 rounded-xl border text-left flex flex-col justify-between h-24 transition ${isVerified ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100' : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-200'}`;
+                    
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start w-full">
+                            <span class="text-xs font-bold tracking-tight block truncate">${item.name}</span>
+                            <i class="${isVerified ? 'fa-solid fa-circle-check text-emerald-500' : 'fa-regular fa-circle text-gray-300'} text-xs mt-0.5"></i>
+                        </div>
+                        <span class="text-[10px] uppercase font-bold tracking-wider ${isVerified ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}">${item.status}</span>
+                    `;
+                    grid.appendChild(card);
                 });
 
-                if (!response.ok) throw new Error("Serverless API execution failed.");
-
-                const data = await response.json();
-                removeTypingIndicator();
-
-                // Extract choice text block matching the proxy payload response schema
-                const aiReply = data.choices[0].message.content;
-                addMessage('ai', aiReply);
-                currentMessages.push({ role: "assistant", content: aiReply });
-
-            } catch (error) {
-                console.error("Fireside Connection Error:", error);
-                removeTypingIndicator();
-                addMessage('ai', "I am having trouble processing that request right now. Please ensure your `FIRE_API_KEY` is completely specified inside your Vercel deployment variables framework.");
+                const rate = walletItems.length ? Math.round((verifiedCount / walletItems.length) * 100) : 0;
+                document.getElementById('backpack-percent').innerText = `${rate}%`;
+                document.getElementById('backpack-bar').style.width = `${rate}%`;
             }
-        });
 
-        // Speech recognition loop
-        function setupVoiceInput() {
-            const btn = document.getElementById('voice-btn');
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-                const rec = new SR();
-                rec.lang = 'en-US';
-                let isListening = false;
+            function toggleItemStatus(id) {
+                walletItems = walletItems.map(item => {
+                    if (item.id === id) {
+                        item.status = item.status === 'verified' ? 'missing' : 'verified';
+                    }
+                    return item;
+                });
+                localStorage.setItem('fireside_wallet', JSON.stringify(walletItems));
+                renderBackpack();
+            }
 
-                rec.onresult = (e) => {
-                    document.getElementById('chat-input').value = e.results[0][0].transcript;
-                    document.getElementById('chat-input').focus();
-                };
-                rec.onstart = () => { isListening = true; btn.classList.add('text-red-500', 'animate-pulse'); };
-                rec.onend = () => { isListening = false; btn.classList.remove('text-red-500', 'animate-pulse'); };
+            function addPreset(name) {
+                if (walletItems.some(i => i.name.toLowerCase() === name.toLowerCase())) return;
+                walletItems.push({ id: Date.now().toString(), name: name, status: 'missing' });
+                localStorage.setItem('fireside_wallet', JSON.stringify(walletItems));
+                renderBackpack();
+            }
+
+            function addBackpackItem() {
+                const input = document.getElementById('new-doc-input');
+                const label = input.value.trim();
+                if (!label) return;
+                walletItems.push({ id: Date.now().toString(), name: label, status: 'missing' });
+                localStorage.setItem('fireside_wallet', JSON.stringify(walletItems));
+                input.value = '';
+                renderBackpack();
+            }
+        </script>
+
+        <script>
+            function generateBoardContent() {
+                const boardContent = document.getElementById('board-content');
+                boardContent.innerHTML = '';
                 
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    if (isListening) { rec.stop(); } else { try { rec.start(); } catch(err) { rec.stop(); } }
+                // Static action steps based on context profile 
+                const plans = [
+                    { title: "Review Baseline Eligibility Metrics", desc: "Verify Federal Poverty Level bounds for household size.", type: "eligibility", rec: true },
+                    { title: "Complete Profile Verification Wallet", desc: "Secure Photo identification and primary address tokens.", type: "type", rec: true },
+                    { title: "Map Nearby Core Community Centers", desc: "Locate physical resource centers within your operational Zip Code.", type: "recommended", rec: false }
+                ];
+
+                plans.forEach(plan => {
+                    const el = document.createElement('div');
+                    el.className = 'bg-white dark:bg-slate-800 p-4 rounded-xl border border-orange-100 dark:border-slate-700 shadow-sm flex items-start gap-3 transition';
+                    el.innerHTML = `
+                        <div class="mt-0.5"><i class="fa-solid fa-circle-nodes text-brand-500"></i></div>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100">${plan.title}</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${plan.desc}</p>
+                        </div>
+                    `;
+                    boardContent.appendChild(el);
                 });
-            } else {
-                btn.style.display = 'none';
+
+                document.getElementById('progress-percent').innerText = "33%";
+                document.getElementById('progress-bar').style.width = "33%";
             }
-        }
-    </script>
-<script>
-    // Once the page finishes loading, hide the initializing overlay
-    window.addEventListener('DOMContentLoaded', () => {
-        const loadingOverlay = document.getElementById('auth-loading');
-        if (loadingOverlay) {
-            loadingOverlay.style.display = 'none';
-        }
-    });
-</script>
+
+            function forceRefreshBoard() {
+                generateBoardContent();
+            }
+
+            function sortResources(criteria) {
+                document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`[data-sort="${criteria}"]`).classList.add('active');
+                generateBoardContent();
+            }
+        </script>
+
+        <script>
+            function logMood(rating) {
+                document.getElementById('checkin-locked').classList.remove('hidden');
+                document.getElementById('wellness-status').innerText = rating >= 4 ? 'Stable & Positive' : 'Needs Focus';
+                document.getElementById('wellness-advice').innerText = rating >= 4 ? 
+                    'Excellent work! Keep utilizing your momentum to knock out action plans today.' : 
+                    'Take a step back. Try to tackle just one document task or mention your constraints in chat.';
+            }
+        </script>
 </body>
 </html>
