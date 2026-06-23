@@ -105,6 +105,8 @@
         /* Wizard Steps */
         .wizard-step { display: none; }
         .wizard-step.active { display: block; animation: fadeIn 0.4s ease-out; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-orange-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans antialiased transition-colors duration-300">
@@ -146,16 +148,16 @@
                             <div class="space-y-4">
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-500 mb-1">Display Name</label>
-                                    <input type="text" id="user-name" class="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm text-slate-900" placeholder="e.g. Alex" required>
+                                    <input type="text" id="user-name" required class="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm text-slate-900" placeholder="e.g. Alex">
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-500 mb-1">Age</label>
-                                        <input type="number" id="user-age" class="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm text-slate-900" placeholder="Age" required>
+                                        <input type="number" id="user-age" required class="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm text-slate-900" placeholder="Age">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-500 mb-1">Zip Code</label>
-                                        <input type="text" id="user-location" class="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm text-slate-900" placeholder="10001" inputmode="numeric" required>
+                                        <input type="text" id="user-location" required class="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm text-slate-900" placeholder="10001" inputmode="numeric">
                                     </div>
                                 </div>
                                 <button type="button" onclick="nextStep(2)" class="w-full bg-slate-800 text-white font-bold py-3 rounded-lg shadow hover:bg-slate-900 transition mt-2">Next <i class="fa-solid fa-arrow-right ml-1"></i></button>
@@ -232,17 +234,12 @@
                     </div>
                     <div>
                         <span class="font-bold text-lg text-slate-900 dark:text-slate-100 tracking-tight block leading-none">Fireside</span>
-                        <span id="streak-display" class="text-[10px] text-orange-600 dark:text-orange-400 font-medium">🔥 Active Session</span>
+                        <span id="streak-display" class="text-[10px] text-orange-600 dark:text-orange-400 font-medium">🔥 Active Journey</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-orange-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition" title="Toggle Theme">
-                        <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
-                    </button>
-                    <button onclick="toggleProfileModal()" class="p-2 rounded-full hover:bg-orange-100 dark:hover:bg-slate-800 text-orange-400 transition" title="Profile & Goals">
-                        <i class="fa-solid fa-user-gear text-sm"></i>
-                    </button>
-                </div>
+                <button onclick="toggleProfileModal()" class="p-2 rounded-full hover:bg-orange-100 dark:hover:bg-slate-800 text-orange-400 transition" title="Profile & Goals">
+                    <i class="fa-solid fa-user-gear text-sm"></i>
+                </button>
             </header>
 
             <div class="flex-1 overflow-hidden relative">
@@ -263,7 +260,7 @@
                         <div id="board-intro" class="fade-in">
                             <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-orange-100 dark:border-slate-700 shadow-card transition-colors duration-300">
                                 <div class="flex items-center space-x-2 mb-3"><div class="w-6 h-6 rounded-full bg-brand-100 dark:bg-brand-900/50 flex items-center justify-center"><i class="fa-solid fa-sparkles text-brand-600 dark:text-brand-400 text-xs"></i></div><h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">Daily Insight</h2></div>
-                                <p id="board-message" class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">Let's talk to the assistant to automatically build your action plans.</p>
+                                <p id="board-message" class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">Let's find the best options customized to your profile details.</p>
                             </div>
                         </div>
                         
@@ -286,7 +283,7 @@
                     <div class="max-w-xl mx-auto space-y-6 fade-in">
                         <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-card border border-orange-100 dark:border-slate-700 transition-colors duration-300">
                             <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">My Wallet</h2>
-                            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Digitize essential documents. Tap a slot to add, or tap a filled card to show.</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Digitize essential documents safely. Check what you have ready.</p>
                             
                             <div id="backpack-progress" class="mb-6">
                                 <div class="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
@@ -306,7 +303,6 @@
                                     <button onclick="addPreset('Photo ID')" class="text-[10px] font-semibold px-2 py-1.5 rounded bg-gray-100 dark:bg-slate-700 hover:bg-brand-100 dark:hover:bg-brand-900/30 text-slate-600 dark:text-slate-300 transition border border-gray-200 dark:border-slate-600">+ Photo ID</button>
                                     <button onclick="addPreset('SSN Card')" class="text-[10px] font-semibold px-2 py-1.5 rounded bg-gray-100 dark:bg-slate-700 hover:bg-brand-100 dark:hover:bg-brand-900/30 text-slate-600 dark:text-slate-300 transition border border-gray-200 dark:border-slate-600">+ SSN</button>
                                     <button onclick="addPreset('Proof of Address')" class="text-[10px] font-semibold px-2 py-1.5 rounded bg-gray-100 dark:bg-slate-700 hover:bg-brand-100 dark:hover:bg-brand-900/30 text-slate-600 dark:text-slate-300 transition border border-gray-200 dark:border-slate-600">+ Address</button>
-                                    <button onclick="addPreset('Pay Stubs')" class="text-[10px] font-semibold px-2 py-1.5 rounded bg-gray-100 dark:bg-slate-700 hover:bg-brand-100 dark:hover:bg-brand-900/30 text-slate-600 dark:text-slate-300 transition border border-gray-200 dark:border-slate-600">+ Pay Stubs</button>
                                 </div>
 
                                 <div class="flex gap-2">
@@ -327,17 +323,21 @@
                                 <button onclick="logMood(1)" class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😫</div><span class="text-[10px] font-bold text-gray-400 group-hover:text-red-500">Rough</span></button>
                                 <button onclick="logMood(2)" class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😕</div><span class="text-[10px] font-bold text-gray-400 group-hover:text-orange-500">Okay</span></button>
                                 <button onclick="logMood(3)" class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😐</div><span class="text-[10px] font-bold text-gray-400 group-hover:text-yellow-500">Fine</span></button>
-                                <button onclick="logMood(4)" class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">🙂</div><span class="text-[10px] font-bold text-gray-400 group-hover:text-green-500">Good</span></button> <button onclick="logMood(5)" class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😁</div><span class="text-[10px] font-bold text-gray-400 group-hover:text-green-600">Great</span></button>
+                                <button onclick="logMood(4)" class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">🙂</div><span class="text-[10px] font-bold text-gray-400 group-hover:text-green-500">Good</span></button>
+                                <button onclick="logMood(5)" class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😁</div><span class="text-[10px] font-bold text-gray-400 group-hover:text-green-600">Great</span></button>
                             </div>
-                            <div id="checkin-locked" class="hidden absolute inset-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm flex flex-col items-center justify-center z-10"><div class="w-10 h-10 bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mb-2"><i class="fa-solid fa-check"></i></div><h3 class="font-bold text-slate-800 dark:text-slate-100">All set for today!</h3><p class="text-xs text-slate-500 dark:text-slate-400">Come back tomorrow to track your progress.</p></div>
                         </div>
-                        
-                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm transition-colors duration-300">
-                            <h3 class="font-bold text-sm text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2"><i class="fa-solid fa-user-doctor text-blue-600 dark:text-blue-400"></i> Find Professional Help</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Connect with verified counselors and support groups in your area.</p>
-                            <div class="space-y-3">
-                                <a href="https://www.psychologytoday.com" target="_blank" class="w-full py-3 bg-blue-50 dark:bg-slate-700/50 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-slate-600 rounded-xl text-sm font-semibold hover:bg-blue-100 dark:hover:bg-slate-700 flex items-center justify-between px-4 transition"><span>Search Psychology Today</span><i class="fa-solid fa-arrow-up-right-from-square text-xs"></i></a>
-                                <a href="https://findtreatment.gov" target="_blank" class="w-full py-3 bg-emerald-50 dark:bg-slate-700/50 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-slate-600 rounded-xl text-sm font-semibold hover:bg-emerald-100 dark:hover:bg-slate-700 flex items-center justify-between px-4 transition"><span>SAMHSA Treatment Locator</span><i class="fa-solid fa-arrow-up-right-from-square text-xs"></i></a>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-card border border-orange-100 dark:border-slate-700 transition-colors duration-300">
+                                <h3 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-3">7-Day Trend</h3>
+                                <div class="relative h-32 w-full">
+                                    <svg id="mood-chart" class="w-full h-full" preserveAspectRatio="none"></svg>
+                                </div>
+                            </div>
+                            <div class="bg-brand-50 dark:bg-brand-900/20 p-5 rounded-2xl border border-brand-100 dark:border-brand-900/30 flex flex-col justify-center transition-colors duration-300">
+                                <h3 class="text-xs font-bold text-brand-700 dark:text-brand-400 uppercase tracking-wide mb-2">Wellness Status</h3>
+                                <div id="wellness-status" class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-1">Stable</div>
+                                <p id="wellness-advice" class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">Tracking your mood helps you look back at progress over time.</p>
                             </div>
                         </div>
                     </div>
@@ -346,377 +346,445 @@
             </div>
 
             <div id="chat-input-area" class="bg-white dark:bg-slate-900 border-t border-orange-100 dark:border-slate-800 p-3 sticky bottom-[60px] z-20 shadow-sm transition-colors duration-300">
-                <form id="chat-form" class="flex gap-2 items-end">
+                <form id="chat-form" class="flex gap-2 items-end" onsubmit="handleChatSubmit(event)">
                     <button type="button" id="voice-btn" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition mb-[2px]"><i class="fa-solid fa-microphone"></i></button>
-                    <input type="text" id="chat-input" class="flex-1 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-2xl px-4 py-3 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition border border-gray-100 dark:border-slate-700 dark:placeholder-slate-500" placeholder="Type a message..." autocomplete="off">
-                    <button type="submit" class="bg-brand-600 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-brand-700 transition mb-[2px]"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+                    <input type="text" id="chat-input" class="flex-1 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-2xl px-4 py-3 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition transition-colors" placeholder="Ask anything...">
+                    <button type="submit" class="bg-brand-600 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-brand-700 transition shadow-sm mb-[2px]"><i class="fa-solid fa-arrow-up"></i></button>
                 </form>
             </div>
 
-            <nav class="glass-nav absolute bottom-0 inset-x-0 h-[60px] z-30 flex items-center justify-around px-2 pb-safe">
-                <button onclick="switchView('chat')" id="nav-chat" class="flex flex-col items-center justify-center text-brand-600 font-bold transition flex-1 py-1"><i class="fa-solid fa-comment-dots text-lg mb-0.5"></i><span class="text-[10px]">Chat</span></button>
-                <button onclick="switchView('board')" id="nav-board" class="flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 font-medium transition flex-1 py-1"><i class="fa-solid fa-rectangle-list text-lg mb-0.5"></i><span class="text-[10px]">Plan</span></button>
-                <button onclick="switchView('backpack')" id="nav-backpack" class="flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 font-medium transition flex-1 py-1"><i class="fa-solid fa-wallet text-lg mb-0.5"></i><span class="text-[10px]">Wallet</span></button>
-                <button onclick="switchView('wellness')" id="nav-wellness" class="flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 font-medium transition flex-1 py-1"><i class="fa-solid fa-heart-pulse text-lg mb-0.5"></i><span class="text-[10px]">Wellness</span></button>
+            <nav class="glass-nav fixed bottom-0 inset-x-0 h-[60px] flex justify-around items-center z-30 pb-safe">
+                <button onclick="switchView('chat')" id="nav-chat" class="flex flex-col items-center justify-center text-brand-600 w-16 h-full transition-colors">
+                    <i class="fa-solid fa-comment-dots text-lg"></i>
+                    <span class="text-[10px] font-medium mt-0.5">Chat</span>
+                </button>
+                <button onclick="switchView('board')" id="nav-board" class="flex flex-col items-center justify-center text-gray-400 hover:text-slate-600 w-16 h-full transition-colors">
+                    <i class="fa-solid fa-clipboard-list text-lg"></i>
+                    <span class="text-[10px] font-medium mt-0.5">Plan</span>
+                </button>
+                <button onclick="switchView('backpack')" id="nav-backpack" class="flex flex-col items-center justify-center text-gray-400 hover:text-slate-600 w-16 h-full transition-colors">
+                    <i class="fa-solid fa-wallet text-lg"></i>
+                    <span class="text-[10px] font-medium mt-0.5">Wallet</span>
+                </button>
+                <button onclick="switchView('wellness')" id="nav-wellness" class="flex flex-col items-center justify-center text-gray-400 hover:text-slate-600 w-16 h-full transition-colors">
+                    <i class="fa-solid fa-heart-pulse text-lg"></i>
+                    <span class="text-[10px] font-medium mt-0.5">Wellness</span>
+                </button>
             </nav>
 
         </div>
 
     </div>
 
-    <div id="profile-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-sm p-6 shadow-2xl relative fade-in max-h-[90vh] overflow-y-auto">
-            <button onclick="toggleProfileModal()" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Profile & Settings</h3>
-            <div class="space-y-4 text-sm text-slate-700 dark:text-slate-300">
-                <div>
-                    <span class="block text-xs text-gray-400 font-bold uppercase">User Profile</span>
-                    <p id="profile-summary" class="font-medium text-slate-800 dark:text-slate-200 mt-1"></p>
-                </div>
-                <hr class="border-gray-100 dark:border-slate-700">
-                <div>
-                    <span class="block text-xs text-gray-400 font-bold uppercase mb-2">Reset Session</span>
-                    <button onclick="clearAllData()" class="w-full bg-red-50 text-red-600 border border-red-200 py-2.5 rounded-xl font-semibold hover:bg-red-100 transition">Clear Data & Restart</button>
-                </div>
+    <div id="profile-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-xl overflow-hidden fade-in">
+            <div class="p-5 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-slate-900 dark:text-white">Profile Settings</h3>
+                <button onclick="toggleProfileModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-5 space-y-4">
+                <p class="text-xs text-slate-500">Manage saved setup information here. Clear data to start clean.</p>
+                <button onclick="resetApp()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-semibold py-2.5 rounded-lg text-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-trash-can"></i> Reset Application & Data
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        let userData = null;
-        let walletItems = [
-            { id: '1', name: 'Photo ID', status: 'missing' },
-            { id: '2', name: 'SSN Card', status: 'missing' },
-            { id: '3', name: 'Proof of Address', status: 'missing' }
-        ];
-        let chatHistory = [];
+        // Core State Objects
+        let appState = {
+            currentView: 'chat',
+            currentStep: 1,
+            userProfile: null,
+            wallet: [
+                { id: 1, name: 'Photo ID', ready: false },
+                { id: 2, name: 'SSN Card', ready: false },
+                { id: 3, name: 'Proof of Address', ready: false }
+            ],
+            moodLog: []
+        };
 
-        // Application Lifecyle Initialization
+        // Initialize App on DOM Content Loaded
         window.addEventListener('DOMContentLoaded', () => {
-            // Load saved state
-            const savedUser = localStorage.getItem('fireside_user');
-            const savedWallet = localStorage.getItem('fireside_wallet');
-            const savedChat = localStorage.getItem('fireside_chat');
-            const savedTheme = localStorage.getItem('fireside_theme');
-
-            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-                document.getElementById('theme-icon').className = 'fa-solid fa-sun text-sm';
-            }
-
-            if (savedWallet) walletItems = JSON.parse(savedWallet);
-            if (savedChat) chatHistory = JSON.parse(savedChat);
-
-            // Turn off loader immediately and show correct screen context
-            const overlay = document.getElementById('auth-loading');
-            overlay.style.opacity = '0';
-            setTimeout(() => overlay.remove(), 500);
-
-            if (savedUser) {
-                userData = JSON.parse(savedUser);
-                document.getElementById('app-view').classList.remove('hidden');
-                renderBackpack();
-                renderChatHistory();
-                if (chatHistory.length === 0) {
-                    sendSystemGreeting();
+            try {
+                // Initialize Markdown Parser
+                if (window.marked && window.marked.parse) {
+                    // Configured correctly
                 }
-            } else {
-                document.getElementById('onboarding-view').classList.remove('hidden');
-            }
-        </script>
 
-        <script>
-            function nextStep(stepNum) {
-                document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
-                document.querySelectorAll('[id^="dot-"]').forEach(el => el.className = 'w-2 h-2 rounded-full bg-gray-200 transition-colors');
-                
-                document.getElementById(`step-${stepNum}`).classList.add('active');
-                document.getElementById(`dot-${stepNum}`).className = 'w-2 h-2 rounded-full bg-orange-600 transition-colors';
-            }
+                // Load Data from Local Storage
+                const storedProfile = localStorage.getItem('fireside_profile');
+                const storedWallet = localStorage.getItem('fireside_wallet');
+                const storedMoods = localStorage.getItem('fireside_moods');
 
-            function handleOnboardingSubmit(e) {
-                e.preventDefault();
-                userData = {
-                    name: document.getElementById('user-name').value || 'User',
-                    age: document.getElementById('user-age').value || '25',
-                    zip: document.getElementById('user-location').value || '10001',
-                    householdSize: document.getElementById('user-size').value || '1',
-                    income: document.getElementById('user-income').value || '0',
-                    taxes: document.getElementById('user-taxes').value || '0',
-                    goal: document.getElementById('user-issue').value
-                };
-                localStorage.setItem('fireside_user', JSON.stringify(userData));
-                
-                document.getElementById('onboarding-view').classList.add('fade-in');
-                setTimeout(() => {
-                    document.getElementById('onboarding-view').classList.add('hidden');
+                if (storedProfile) appState.userProfile = JSON.parse(storedProfile);
+                if (storedWallet) appState.wallet = JSON.parse(storedWallet);
+                if (storedMoods) appState.moodLog = JSON.parse(storedMoods);
+
+                // Setup Initial UI States
+                renderWallet();
+                renderMoodChart();
+                buildActionPlan();
+
+                // Remove Loader Overlay safely
+                const loader = document.getElementById('auth-loading');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.remove(), 500);
+                }
+
+                // Route View depending on onboarding existence
+                if (appState.userProfile) {
                     document.getElementById('app-view').classList.remove('hidden');
-                    renderBackpack();
-                    sendSystemGreeting();
-                }, 300);
-            }
-        </script>
-
-        <script>
-            function switchView(viewId) {
-                document.getElementById('chat-section').classList.add('hidden');
-                document.getElementById('board-section').classList.add('hidden');
-                document.getElementById('backpack-section').classList.add('hidden');
-                document.getElementById('wellness-section').classList.add('hidden');
-                document.getElementById('chat-input-area').classList.add('hidden');
-
-                // Standardize nav style selectors
-                document.querySelectorAll('nav button').forEach(btn => {
-                    btn.className = 'flex flex-col items-center justify-center text-gray-400 dark:text-slate-500 font-medium transition flex-1 py-1';
-                });
-
-                document.getElementById(`${viewId}-section`).classList.remove('hidden');
-                document.getElementById(`nav-${viewId}`).className = 'flex flex-col items-center justify-center text-brand-600 font-bold transition flex-1 py-1';
-                
-                if (viewId === 'chat') {
-                    document.getElementById('chat-input-area').classList.remove('hidden');
-                }
-                if (viewId === 'board') {
-                    generateBoardContent();
-                }
-            }
-
-            function toggleProfileModal() {
-                const modal = document.getElementById('profile-modal');
-                if(modal.classList.contains('hidden')) {
-                    if(userData) {
-                        document.getElementById('profile-summary').innerText = `${userData.name}, Age ${userData.age}\nZip: ${userData.zip}\nGoal: ${userData.goal.toUpperCase()}`;
-                    }
-                    modal.classList.remove('hidden');
+                    addMessage('ai', `Welcome back, **${appState.userProfile.name}**! How can I assist you with your journey today?`);
                 } else {
-                    modal.classList.add('hidden');
+                    document.getElementById('onboarding-view').classList.remove('hidden');
+                }
+
+                setupVoiceInput();
+            } catch (err) {
+                console.error("Initialization Failed: ", err);
+                const log = document.getElementById('error-log');
+                if (log) {
+                    log.innerText = "Error: " + err.message;
+                    log.classList.remove('hidden');
                 }
             }
+        });
 
-            function toggleDarkMode() {
-                const isDark = document.documentElement.classList.toggle('dark');
-                localStorage.setItem('fireside_theme', isDark ? 'dark' : 'light');
-                document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-sm' : 'fa-solid fa-moon text-sm';
+        // Wizard Step Navigation
+        function nextStep(step) {
+            if (step === 2) {
+                const nameInput = document.getElementById('user-name').value.trim();
+                const ageInput = document.getElementById('user-age').value.trim();
+                const locInput = document.getElementById('user-location').value.trim();
+                if (!nameInput || !ageInput || !locInput) {
+                    alert("Please fill in your basic display information.");
+                    return;
+                }
             }
-
-            function clearAllData() {
-                localStorage.clear();
-                window.location.reload();
-            }
-        </script>
-
-        <script>
-            function addMessage(sender, text) {
-                const container = document.getElementById('chat-container');
-                const messageWrapper = document.createElement('div');
-                messageWrapper.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} fade-in`;
-                
-                const msgBubble = document.createElement('div');
-                msgBubble.className = `max-w-[85%] px-4 py-2.5 text-sm ${sender === 'user' ? 'msg-user' : 'msg-ai prose'}`;
-                
-                if (sender === 'user') {
-                    msgBubble.innerText = text;
+            
+            document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+            document.getElementById(`step-${step}`).classList.add('active');
+            
+            // Progress Indicator Update
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                if (i <= step) {
+                    dot.className = "w-2 h-2 rounded-full bg-orange-600 transition-colors";
                 } else {
-                    msgBubble.innerHTML = marked.parse(text);
+                    dot.className = "w-2 h-2 rounded-full bg-gray-200 transition-colors";
                 }
-                
-                messageWrapper.appendChild(msgBubble);
-                container.appendChild(messageWrapper);
-                container.scrollTop = container.scrollHeight;
+            }
+            appState.currentStep = step;
+        }
+
+        // Handle Onboarding Completion
+        function handleOnboardingSubmit(e) {
+            e.preventDefault();
+            const profile = {
+                name: document.getElementById('user-name').value.trim(),
+                age: document.getElementById('user-age').value.trim(),
+                zip: document.getElementById('user-location').value.trim(),
+                householdSize: document.getElementById('user-size').value || "1",
+                income: document.getElementById('user-income').value || "0",
+                taxes: document.getElementById('user-taxes').value || "0",
+                targetIssue: document.getElementById('user-issue').value
+            };
+
+            localStorage.setItem('fireside_profile', JSON.stringify(profile));
+            appState.userProfile = profile;
+
+            buildActionPlan();
+
+            document.getElementById('onboarding-view').classList.add('hidden');
+            document.getElementById('app-view').classList.remove('hidden');
+            
+            addMessage('ai', `Hello **${profile.name}**! I've personalized your dashboard around **${profile.targetIssue}**. Check your personalized Action Plan tab any time.`);
+        }
+
+        // View Router Switching
+        function switchView(viewName) {
+            appState.currentView = viewName;
+            
+            // Sections Visibility Toggle
+            document.getElementById('chat-section').classList.add('hidden');
+            document.getElementById('board-section').classList.add('hidden');
+            document.getElementById('backpack-section').classList.add('hidden');
+            document.getElementById('wellness-section').classList.add('hidden');
+            document.getElementById('chat-input-area').classList.add('hidden');
+
+            document.getElementById(`${viewName}-section`).classList.remove('hidden');
+            if (viewName === 'chat') {
+                document.getElementById('chat-input-area').classList.remove('hidden');
             }
 
-            function showTypingIndicator() {
-                const container = document.getElementById('chat-container');
-                const id = 'typing-indicator';
-                if (document.getElementById(id)) return;
-
-                const wrapper = document.createElement('div');
-                wrapper.id = id;
-                wrapper.className = 'flex justify-start fade-in';
-                wrapper.innerHTML = `
-                    <div class="msg-ai px-4 py-3 flex items-center space-x-1">
-                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
-                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
-                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
-                    </div>`;
-                container.appendChild(wrapper);
-                container.scrollTop = container.scrollHeight;
-            }
-
-            function hideTypingIndicator() {
-                const indicator = document.getElementById('typing-indicator');
-                if (indicator) indicator.remove();
-            }
-
-            function sendSystemGreeting() {
-                const welcome = `Hi **${userData.name}**, welcome to your Fireside command station! I've targeted customized localized paths for context **${userData.goal}** in zip **${userData.zip}**. Tell me a bit about what specific resources you are hunting down right now!`;
-                addMessage('ai', welcome);
-                chatHistory.push({ role: 'model', parts: [{ text: welcome }] });
-                localStorage.setItem('fireside_chat', JSON.stringify(chatHistory));
-            }
-
-            document.getElementById('chat-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const input = document.getElementById('chat-input');
-                const text = input.value.trim();
-                if (!text) return;
-
-                input.value = '';
-                addMessage('user', text);
-                chatHistory.push({ role: 'user', parts: [{ text: text }] });
-                localStorage.setItem('fireside_chat', JSON.stringify(chatHistory));
-
-                showTypingIndicator();
-
-                // Format accurate context injector
-                const systemPrompt = `You are Fireside, an empathetic, premium navigator helping people map action items. The user profile is: Name ${userData.name}, Age ${userData.age}, Location Zip ${userData.zip}, Household Size ${userData.householdSize}, Annual Income $${userData.income}. Respond natively using markdown formatting and present clear actionable items with bullet lists where helpful. Keep response concise, warm, and highly relevant.`;
-
-                try {
-                    // Unified model selection via standard endpoint path structure
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [
-                                { role: 'user', parts: [{ text: systemPrompt }] },
-                                ...chatHistory
-                            ]
-                        })
-                    });
-
-                    const data = await response.json();
-                    hideTypingIndicator();
-
-                    if (data.candidates && data.candidates[0].content.parts[0].text) {
-                        const aiReply = data.candidates[0].content.parts[0].text;
-                        addMessage('ai', aiReply);
-                        chatHistory.push({ role: 'model', parts: [{ text: aiReply }] });
-                        localStorage.setItem('fireside_chat', JSON.stringify(chatHistory));
-                    } else {
-                        addMessage('ai', "I encountered a processing error parsing the request. Please type your message again.");
-                    }
-                } catch (error) {
-                    hideTypingIndicator();
-                    addMessage('ai', "Network error. Make sure you are connected to the internet and try again.");
+            // Navigation State Styles Reset
+            const tabs = ['chat', 'board', 'backpack', 'wellness'];
+            tabs.forEach(tab => {
+                const navBtn = document.getElementById(`nav-${tab}`);
+                if (tab === viewName) {
+                    navBtn.className = "flex flex-col items-center justify-center text-brand-600 w-16 h-full transition-colors";
+                } else {
+                    navBtn.className = "flex flex-col items-center justify-center text-gray-400 hover:text-slate-600 w-16 h-full transition-colors";
                 }
             });
 
-            function renderChatHistory() {
-                const container = document.getElementById('chat-container');
-                container.innerHTML = '';
-                chatHistory.forEach(msg => {
-                    const sender = msg.role === 'user' ? 'user' : 'ai';
-                    addMessage(sender, msg.parts[0].text);
-                });
-            }
-        </script>
+            if (viewName === 'wellness') renderMoodChart();
+        }
 
-        <script>
-            function renderBackpack() {
-                const grid = document.getElementById('backpack-list');
-                grid.innerHTML = '';
-                let verifiedCount = 0;
+        // Chat UI System
+        function addMessage(sender, text) {
+            const container = document.getElementById('chat-container');
+            if (!container) return;
 
-                walletItems.forEach(item => {
-                    if (item.status === 'verified') verifiedCount++;
-                    const isVerified = item.status === 'verified';
-                    
-                    const card = document.createElement('button');
-                    card.onclick = () => toggleItemStatus(item.id);
-                    card.className = `p-4 rounded-xl border text-left flex flex-col justify-between h-24 transition ${isVerified ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100' : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-200'}`;
-                    
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start w-full">
-                            <span class="text-xs font-bold tracking-tight block truncate">${item.name}</span>
-                            <i class="${isVerified ? 'fa-solid fa-circle-check text-emerald-500' : 'fa-regular fa-circle text-gray-300'} text-xs mt-0.5"></i>
-                        </div>
-                        <span class="text-[10px] uppercase font-bold tracking-wider ${isVerified ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}">${item.status}</span>
-                    `;
-                    grid.appendChild(card);
-                });
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} fade-in mb-2`;
 
-                const rate = walletItems.length ? Math.round((verifiedCount / walletItems.length) * 100) : 0;
-                document.getElementById('backpack-percent').innerText = `${rate}%`;
-                document.getElementById('backpack-bar').style.width = `${rate}%`;
+            let formattedText = text;
+            if (sender === 'ai' && window.marked) {
+                formattedText = window.marked.parse(text);
             }
 
-            function toggleItemStatus(id) {
-                walletItems = walletItems.map(item => {
-                    if (item.id === id) {
-                        item.status = item.status === 'verified' ? 'missing' : 'verified';
-                    }
-                    return item;
-                });
-                localStorage.setItem('fireside_wallet', JSON.stringify(walletItems));
-                renderBackpack();
-            }
+            msgDiv.innerHTML = `
+                <div class="max-w-[85%] px-4 py-2.5 text-sm ${sender === 'user' ? 'msg-user' : 'msg-ai prose'} shadow-sm">
+                    ${formattedText}
+                </div>
+            `;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+            updateProgressBar();
+        }
 
-            function addPreset(name) {
-                if (walletItems.some(i => i.name.toLowerCase() === name.toLowerCase())) return;
-                walletItems.push({ id: Date.now().toString(), name: name, status: 'missing' });
-                localStorage.setItem('fireside_wallet', JSON.stringify(walletItems));
-                renderBackpack();
-            }
+        // Chat Form Submission API Connector
+        async function handleChatSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const query = input.value.trim();
+            if (!query) return;
 
-            function addBackpackItem() {
-                const input = document.getElementById('new-doc-input');
-                const label = input.value.trim();
-                if (!label) return;
-                walletItems.push({ id: Date.now().toString(), name: label, status: 'missing' });
-                localStorage.setItem('fireside_wallet', JSON.stringify(walletItems));
-                input.value = '';
-                renderBackpack();
-            }
-        </script>
+            addMessage('user', query);
+            input.value = '';
 
-        <script>
-            function generateBoardContent() {
-                const boardContent = document.getElementById('board-content');
-                boardContent.innerHTML = '';
+            // Render Temporary Typing Indicator
+            const container = document.getElementById('chat-container');
+            const loaderDiv = document.createElement('div');
+            loaderDiv.id = 'ai-typing-indicator';
+            loaderDiv.className = "flex justify-start fade-in items-center space-x-1 msg-ai px-4 py-3 max-w-[80px] mb-2";
+            loaderDiv.innerHTML = `
+                <span class="w-1.5 h-1.5 bg-orange-500 rounded-full typing-dot"></span>
+                <span class="w-1.5 h-1.5 bg-orange-500 rounded-full typing-dot"></span>
+                <span class="w-1.5 h-1.5 bg-orange-500 rounded-full typing-dot"></span>
+            `;
+            container.appendChild(loaderDiv);
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                const sysPrompt = `You are Fireside Navigator. Answer helpfully. Context: User Name ${appState.userProfile?.name}, Target ${appState.userProfile?.targetIssue}.`;
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
                 
-                // Static action steps based on context profile 
-                const plans = [
-                    { title: "Review Baseline Eligibility Metrics", desc: "Verify Federal Poverty Level bounds for household size.", type: "eligibility", rec: true },
-                    { title: "Complete Profile Verification Wallet", desc: "Secure Photo identification and primary address tokens.", type: "type", rec: true },
-                    { title: "Map Nearby Core Community Centers", desc: "Locate physical resource centers within your operational Zip Code.", type: "recommended", rec: false }
-                ];
-
-                plans.forEach(plan => {
-                    const el = document.createElement('div');
-                    el.className = 'bg-white dark:bg-slate-800 p-4 rounded-xl border border-orange-100 dark:border-slate-700 shadow-sm flex items-start gap-3 transition';
-                    el.innerHTML = `
-                        <div class="mt-0.5"><i class="fa-solid fa-circle-nodes text-brand-500"></i></div>
-                        <div>
-                            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100">${plan.title}</h4>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${plan.desc}</p>
-                        </div>
-                    `;
-                    boardContent.appendChild(el);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ role: "user", parts: [{ text: sysPrompt + "\nUser: " + query }] }]
+                    })
                 });
 
-                document.getElementById('progress-percent').innerText = "33%";
-                document.getElementById('progress-bar').style.width = "33%";
-            }
+                const data = await response.json();
+                loaderDiv.remove();
 
-            function forceRefreshBoard() {
-                generateBoardContent();
+                const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "I apologize, I could not generate a response right now.";
+                addMessage('ai', aiText);
+            } catch (err) {
+                loaderDiv.remove();
+                addMessage('ai', "Connection error. Please check your network and API key setup.");
             }
+        }
 
-            function sortResources(criteria) {
-                document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
-                document.querySelector(`[data-sort="${criteria}"]`).classList.add('active');
-                generateBoardContent();
-            }
-        </script>
+        // Document Wallet Manager Subsystem
+        function renderWallet() {
+            const list = document.getElementById('backpack-list');
+            if (!list) return;
+            list.innerHTML = '';
 
-        <script>
-            function logMood(rating) {
-                document.getElementById('checkin-locked').classList.remove('hidden');
-                document.getElementById('wellness-status').innerText = rating >= 4 ? 'Stable & Positive' : 'Needs Focus';
-                document.getElementById('wellness-advice').innerText = rating >= 4 ? 
-                    'Excellent work! Keep utilizing your momentum to knock out action plans today.' : 
-                    'Take a step back. Try to tackle just one document task or mention your constraints in chat.';
+            let completed = 0;
+            appState.wallet.forEach(item => {
+                if (item.ready) completed++;
+                const card = document.createElement('div');
+                card.className = `p-4 border rounded-xl flex flex-col justify-between cursor-pointer transition ${item.ready ? 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200' : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700'}`;
+                card.onclick = () => toggleWalletItem(item.id);
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Slot</span>
+                        <i class="fa-solid ${item.ready ? 'fa-circle-check text-emerald-500' : 'fa-circle text-gray-300 dark:text-slate-600'} text-sm"></i>
+                    </div>
+                    <span class="text-sm font-semibold text-slate-800 dark:text-slate-200 block truncate">${item.name}</span>
+                    <span class="text-[10px] mt-1 block ${item.ready ? 'text-emerald-600 font-medium' : 'text-gray-400'}">${item.ready ? 'Ready to share' : 'Tap to add file'}</span>
+                `;
+                list.appendChild(card);
+            });
+
+            const percent = appState.wallet.length ? Math.round((completed / appState.wallet.length) * 100) : 0;
+            document.getElementById('backpack-percent').innerText = `${percent}%`;
+            document.getElementById('backpack-bar').style.width = `${percent}%`;
+        }
+
+        function toggleWalletItem(id) {
+            appState.wallet = appState.wallet.map(item => item.id === id ? { ...item, ready: !item.ready } : item);
+            localStorage.setItem('fireside_wallet', JSON.stringify(appState.wallet));
+            renderWallet();
+        }
+
+        function addPreset(name) {
+            if (appState.wallet.some(i => i.name.toLowerCase() === name.toLowerCase())) return;
+            appState.wallet.push({ id: Date.now(), name: name, ready: false });
+            localStorage.setItem('fireside_wallet', JSON.stringify(appState.wallet));
+            renderWallet();
+        }
+
+        function addBackpackItem() {
+            const input = document.getElementById('new-doc-input');
+            const name = input.value.trim();
+            if (!name) return;
+            appState.wallet.push({ id: Date.now(), name: name, ready: false });
+            localStorage.setItem('fireside_wallet', JSON.stringify(appState.wallet));
+            input.value = '';
+            renderWallet();
+        }
+
+        // Wellness Logging & Graphing System
+        function logMood(score) {
+            const today = new Array(7); 
+            appState.moodLog.push({ date: new Date().toLocaleDateString(), score: score });
+            if (appState.moodLog.length > 7) appState.moodLog.shift();
+            localStorage.setItem('fireside_moods', JSON.stringify(appState.moodLog));
+            renderMoodChart();
+            alert("Mood logged. Keep looking forward!");
+        }
+
+        function renderMoodChart() {
+            const svg = document.getElementById('mood-chart');
+            if (!svg) return;
+            svg.innerHTML = '';
+
+            const data = appState.moodLog.length ? appState.moodLog : [{ score: 3 }, { score: 3 }, { score: 4 }];
+            const width = svg.clientWidth || 200;
+            const height = svg.clientHeight || 128;
+            const padding = 15;
+
+            let points = [];
+            data.forEach((d, idx) => {
+                const x = padding + (idx * ((width - (padding * 2)) / Math.max(1, data.length - 1)));
+                const y = height - padding - ((d.score - 1) * ((height - (padding * 2)) / 4));
+                points.push(`${x},${y}`);
+                
+                // Add dot circles
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", x);
+                circle.setAttribute("cy", y);
+                circle.setAttribute("r", "4");
+                circle.setAttribute("fill", "#f97316");
+                svg.appendChild(circle);
+            });
+
+            if (points.length > 1) {
+                const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+                polyline.setAttribute("points", points.join(" "));
+                polyline.setAttribute("fill", "none");
+                polyline.setAttribute("stroke", "#f97316");
+                polyline.setAttribute("stroke-width", "2");
+                svg.insertBefore(polyline, svg.firstChild);
             }
-        </script>
+        }
+
+        // Plan / Action Plan Subsystem Curations
+        function buildActionPlan() {
+            const content = document.getElementById('board-content');
+            if (!content) return;
+
+            const target = appState.userProfile?.targetIssue || 'other';
+            let mockPlans = {
+                unemployment: [
+                    { title: 'Update Resume Profile', desc: 'Adapt key performance terms for automated scanners.', meta: 'Recommended' },
+                    { title: 'Local Career Center Consultation', desc: 'Schedule verification slot for training grants.', meta: 'Eligibility Check Needed' }
+                ],
+                housing: [
+                    { title: 'Gather Address Verification Proofs', desc: 'Keep photo identity matching utilities ready.', meta: 'Recommended' },
+                    { title: 'Affordable Housing Registry Portal', desc: 'File application matching low-income metrics.', meta: 'High Match' }
+                ],
+                other: [
+                    { title: 'Complete Core Document Set', desc: 'Ensure Photo ID and SSN match localized wallet metrics.', meta: 'Recommended' }
+                ]
+            };
+
+            const actions = mockPlans[target] || mockPlans['other'];
+            content.innerHTML = actions.map(act => `
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-orange-100 dark:border-slate-700 shadow-sm fade-in">
+                    <div class="flex justify-between items-start mb-1">
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white">${act.title}</h4>
+                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300 uppercase">${act.meta}</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">${act.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        function sortResources(criteria) {
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                if (btn.getAttribute('data-sort') === criteria) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            buildActionPlan(); 
+        }
+
+        function forceRefreshBoard() {
+            buildActionPlan();
+            alert("Action Plan updated.");
+        }
+
+        function updateProgressBar() {
+            const count = document.querySelectorAll('#chat-container > div').length;
+            const progress = Math.min(100, count * 12);
+            document.getElementById('progress-percent').innerText = `${progress}%`;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function setupVoiceInput() {
+            const btn = document.getElementById('voice-btn');
+            if (!btn) return;
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SR = window.SpeechRecognition || window.webkitSpeechRecognition; 
+                const rec = new SR(); 
+                rec.lang = 'en-US';
+                let isListening = false;
+                
+                rec.onresult = (e) => { 
+                    document.getElementById('chat-input').value = e.results[0][0].transcript; 
+                };
+                rec.onstart = () => { isListening = true; btn.classList.add('text-red-500', 'animate-pulse'); };
+                rec.onend = () => { isListening = false; btn.classList.remove('text-red-500', 'animate-pulse'); };
+                
+                btn.addEventListener('click', (e) => { 
+                    e.preventDefault(); 
+                    if (isListening) { rec.stop(); } else { try { rec.start(); } catch(err){ rec.stop(); } }
+                });
+            } else { 
+                btn.style.display = 'none'; 
+            }
+        }
+
+        function toggleProfileModal() {
+            document.getElementById('profile-modal').classList.toggle('hidden');
+        }
+
+        function resetApp() {
+            if (confirm("Are you sure you want to delete all saved local profile data?")) {
+                localStorage.clear();
+                window.location.reload();
+            }
+        }
+    </script>
 </body>
 </html>
