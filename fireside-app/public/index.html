@@ -1,48 +1,573 @@
-// --- REPLACE YOUR LEGACY CHAT SUBMIT EVENT LISTENER WITH THIS OPTIMIZED VERSION ---
-document.getElementById('chat-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const input = document.getElementById('chat-input');
-    const txt = input.value.trim();
-    if(!txt) return;
-
-    // 1. Add the user message immediately to the UI
-    addMessage('user', txt);
-    input.value = '';
+<!DOCTYPE html>
+<html lang="en" class="transition-colors duration-300">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fireside</title>
     
-    // Auto-scroll chat area down
-    const container = document.getElementById('chat-messages-container');
-    if (container) container.scrollTop = container.scrollHeight;
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    try {
-        // 2. Dynamically gather up EVERY element of progress and user data for strict context integration
-        const userContext = {
-            profile: loadFromDb('profile') || {},
-            completedResources: loadFromDb('progress_completed') || [],
-            startedResources: loadFromDb('progress_started') || [],
-            customGoals: loadFromDb('custom_goals') || [],
-            backpackItems: loadFromDb('backpack') || [],
-            moodHistory: loadFromDb('moods') || []
-        };
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        },
+                        slate: {
+                            850: '#1e293b', 
+                        }
+                    },
+                    boxShadow: {
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'floating': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
 
-        // 3. Post the request to our secure local Vercel backend route
-        const res = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                messages: chatHistory, // Passes full continuous conversation chain
-                context: userContext    // Passes all state, progress, items, and settings
-            })
+    <style>
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Typing Dots */
+        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        /* UI Elements */
+        .msg-user { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border-radius: 18px 18px 4px 18px; }
+        .msg-ai { background-color: #ffffff; color: #334155; border-radius: 18px 18px 18px 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .dark .msg-ai { background-color: #334155; color: #e2e8f0; box-shadow: none; border: 1px solid #475569; }
+        
+        .prose p { margin-bottom: 0.5rem; }
+        .prose ul { list-style-type: none; padding-left: 0; }
+        .prose li { position: relative; padding-left: 1.25rem; margin-bottom: 0.25rem; }
+        .prose li::before { content: ""; position: absolute; left: 0.25rem; top: 0.6rem; width: 4px; height: 4px; background-color: #ea580c; border-radius: 50%; }
+        .prose strong { color: #0f172a; font-weight: 600; }
+        .dark .prose strong { color: #f1f5f9; }
+        .prose a { color: #ea580c; text-decoration: underline; }
+        
+        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid #fed7aa; }
+        .dark .glass-nav { background: rgba(15, 23, 42, 0.95); border-top: 1px solid #334155; }
+        
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+        
+        /* Loading Overlay */
+        #auth-loading { position: absolute; inset: 0; background: #fff7ed; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; transition: opacity 0.5s ease-out; }
+        .dark #auth-loading { background: #0f172a; }
+        
+        html, body { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden; }
+        
+        /* Checkbox Styles */
+        .goal-check:checked + div { background-color: #10b981; border-color: #10b981; }
+        .goal-check:checked + div i { opacity: 1; transform: scale(1); }
+        .goal-text.completed { text-decoration: line-through; color: #9ca3af; }
+        .dark .goal-text.completed { color: #64748b; }
+
+        /* Sort Buttons */
+        .sort-btn.active { background-color: #1e293b; color: white; border-color: #1e293b; }
+        .dark .sort-btn.active { background-color: #f1f5f9; color: #0f172a; border-color: #f1f5f9; }
+
+        /* Wizard Steps */
+        .wizard-step { display: none; }
+        .wizard-step.active { display: block; animation: fadeIn 0.4s ease-out; }
+    </style>
+</head>
+<body class="bg-orange-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans antialiased transition-colors duration-300">
+
+    <div id="root-frame" class="w-full h-full relative overflow-hidden flex flex-col">
+
+        <div id="auth-loading">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mb-4"></div>
+            <p class="text-orange-800 dark:text-orange-400 font-bold animate-pulse">Entering the Fireside Hearth...</p>
+        </div>
+
+        <div id="onboarding-view" class="absolute inset-0 z-50 bg-gradient-to-br from-orange-400 to-red-600 overflow-y-auto hidden">
+            <div class="min-h-full w-full flex items-center justify-center p-4 py-10">
+                <div class="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-8 fade-in relative">
+                    
+                    <div class="mb-6 text-center">
+                        <div class="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center shadow-inner mb-3 mx-auto">
+                            <i class="fa-solid fa-fire text-orange-600 text-2xl"></i>
+                        </div>
+                        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Fireside</h1>
+                        <p class="text-xs text-slate-500 mt-1">Personalized guidance. Offline security.</p>
+                    </div>
+
+                    <div class="flex justify-center gap-2 mb-6">
+                        <div id="dot-1" class="w-2 h-2 rounded-full bg-orange-600 transition-colors"></div>
+                        <div id="dot-2" class="w-2 h-2 rounded-full bg-gray-200 transition-colors"></div>
+                        <div id="dot-3" class="w-2 h-2 rounded-full bg-gray-200 transition-colors"></div>
+                    </div>
+
+                    <form id="demographics-form" class="relative" onsubmit="handleOnboardingSubmit(event)">
+                        
+                        <div id="step-1" class="wizard-step active">
+                            <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">Let's get to know you.</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">Display Name</label>
+                                    <input type="text" id="user-name" required class="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm text-slate-900" placeholder="e.g. Alex">
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-500 mb-1">Age</label>
+                                        <input type="number" id="user-age" class="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm text-slate-900" placeholder="Age">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-500 mb-1">Track Choice</label>
+                                        <input type="text" id="user-location" class="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm text-slate-900" placeholder="Growth / Career">
+                                    </div>
+                                </div>
+                                <button type="button" onclick="nextStep(2)" class="w-full bg-slate-800 text-white font-bold py-3 rounded-lg shadow hover:bg-slate-900 transition mt-2">Next <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                            </div>
+                        </div>
+
+                        <div id="step-2" class="wizard-step">
+                            <h3 class="text-lg font-bold text-slate-800 mb-2 text-center">Current Context.</h3>
+                            <p class="text-xs text-slate-500 text-center mb-4">Briefly outline your background summary.</p>
+                            
+                            <div class="bg-orange-50 p-4 rounded-xl border border-orange-100 space-y-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-orange-700 mb-1 uppercase">A short bio or background</label>
+                                    <textarea id="user-bio" class="w-full h-20 px-2 py-1.5 rounded border border-orange-200 text-sm focus:border-orange-500 outline-none text-slate-900 resize-none" placeholder="What brings you to Fireside?"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3 mt-4">
+                                <button type="button" onclick="nextStep(1)" class="flex-1 bg-white border border-gray-200 text-gray-600 font-bold py-3 rounded-lg hover:bg-gray-50 transition">Back</button>
+                                <button type="button" onclick="nextStep(3)" class="flex-[2] bg-slate-800 text-white font-bold py-3 rounded-lg shadow hover:bg-slate-900 transition">Next <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                            </div>
+                        </div>
+
+                        <div id="step-3" class="wizard-step">
+                            <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">What's your primary goal?</h3>
+                            
+                            <div class="mb-6">
+                                <label class="block text-xs font-semibold text-slate-500 mb-2">I want to focus on...</label>
+                                <div class="relative">
+                                    <select id="user-issue" class="w-full px-4 py-3 rounded-xl bg-orange-50 border border-orange-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm appearance-none font-medium text-slate-700">
+                                        <option value="growth">Personal Growth</option>
+                                        <option value="career">Career Development</option>
+                                        <option value="resilience">Building Resilience</option>
+                                        <option value="mindfulness">Mindfulness & Vision</option>
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-orange-400 text-xs pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <button type="button" onclick="nextStep(2)" class="flex-1 bg-white border border-gray-200 text-gray-600 font-bold py-3 rounded-lg hover:bg-gray-50 transition">Back</button>
+                                <button type="submit" class="flex-[2] bg-gradient-to-r from-orange-600 to-red-600 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-xl transform transition active:scale-[0.98]">
+                                    Start Journey
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-view" class="flex flex-col h-full hidden bg-orange-50 dark:bg-slate-900 relative overflow-hidden">
+            
+            <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-orange-100 dark:border-slate-800 z-10 px-4 py-3 flex justify-between items-center sticky top-0 transition-colors duration-300">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-sm">
+                        <i class="fa-solid fa-fire text-white text-xs"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-lg text-slate-900 dark:text-slate-100 tracking-tight block leading-none">Fireside</span>
+                        <span id="streak-display" class="text-[10px] text-orange-600 dark:text-orange-400 font-medium">🔥 Active Tracker</span>
+                    </div>
+                </div>
+                <button onclick="toggleProfileModal()" class="p-2 rounded-full hover:bg-orange-100 dark:hover:bg-slate-800 text-orange-400 transition" title="Profile Configuration">
+                    <i class="fa-solid fa-user-gear text-sm"></i>
+                </button>
+            </header>
+
+            <div class="flex-1 overflow-hidden relative">
+                
+                <div id="chat-section" class="h-full flex flex-col absolute inset-0 bg-orange-50/30 dark:bg-slate-900/30">
+                    <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 pb-24 scroll-smooth">
+                        </div>
+                </div>
+
+                <div id="board-section" class="h-full overflow-y-auto p-4 absolute inset-0 hidden bg-orange-50 dark:bg-slate-900 pb-24">
+                    <div class="max-w-xl mx-auto space-y-6">
+                        <div id="progress-container" class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-orange-100 dark:border-slate-700 shadow-sm fade-in transition-colors duration-300">
+                            <div class="flex justify-between items-end mb-2">
+                                <div>
+                                    <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">My Milestones</h2>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Track your program modules</p>
+                                </div>
+                                <span id="progress-percent" class="text-2xl font-bold text-brand-600 dark:text-brand-500">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-2.5">
+                                <div id="progress-bar" class="bg-brand-500 h-2.5 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-2">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Action Plan</h3>
+                        </div>
+
+                        <div id="board-content" class="space-y-4">
+                            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800 dark:text-white">Mindfulness Foundations</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Mental health, stress alignment, clarity drills.</p>
+                                </div>
+                                <button onclick="toggleModule('Mindfulness Foundations')" id="mod-btn-mindfulness" class="px-3 py-1 bg-brand-100 text-brand-700 text-xs font-bold rounded-lg hover:bg-brand-200 transition">Start</button>
+                            </div>
+
+                            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm flex justify-between items-center">
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-800 dark:text-white">Career Acceleration Pipeline</h4>
+                                    <p class="text-xs text-slate-500 mt-1">Portfolio audits, optimization strategy, applications.</p>
+                                }</div>
+                                <button onclick="toggleModule('Career Acceleration Pipeline')" id="mod-btn-career" class="px-3 py-1 bg-brand-100 text-brand-700 text-xs font-bold rounded-lg hover:bg-brand-200 transition">Start</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="backpack-section" class="h-full overflow-y-auto p-4 absolute inset-0 hidden bg-orange-50 dark:bg-slate-900 pb-24">
+                    <div class="max-w-xl mx-auto space-y-6 fade-in">
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-card border border-orange-100 dark:border-slate-700 transition-colors duration-300">
+                            <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">My Backpack Wallet</h2>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Store utility assets, badges, or collection markers earned on your track.</p>
+                            
+                            <div id="backpack-progress" class="mb-6">
+                                <div class="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
+                                    <span>Inventory Space Fill</span>
+                                    <span id="backpack-percent">25%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-2.5">
+                                    <div id="backpack-bar" class="bg-brand-500 h-2.5 rounded-full transition-all duration-500" style="width: 25%"></div>
+                                </div>
+                            </div>
+
+                            <div id="backpack-list" class="grid grid-cols-2 gap-3">
+                                </div>
+                            
+                            <div class="mt-6 pt-4 border-t border-gray-100 dark:border-slate-700">
+                                <p class="text-xs font-bold text-slate-400 dark:text-slate-500 mb-2 uppercase tracking-wide">Pack custom item slot:</p>
+                                <div class="flex gap-2">
+                                    <input type="text" id="new-doc-input" placeholder="Label, e.g. Master Compass..." class="flex-1 px-3 py-2 border rounded-lg text-sm focus:border-brand-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400">
+                                    <button onclick="addBackpackItemCustom()" class="bg-slate-800 dark:bg-slate-600 text-white w-10 rounded-lg flex items-center justify-center hover:bg-slate-900 transition"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="chat-input-area" class="bg-white dark:bg-slate-900 border-t border-orange-100 dark:border-slate-800 p-3 sticky bottom-[60px] z-20 shadow-sm transition-colors duration-300">
+                <form id="chat-form" class="flex gap-2 items-end">
+                    <input type="text" id="chat-input" class="flex-1 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-2xl px-4 py-3 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition border border-gray-100 dark:border-slate-700 dark:placeholder-slate-500" placeholder="Ask your guide anything..." autocomplete="off">
+                    <button type="submit" class="bg-brand-600 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-brand-700 transition shadow-sm mb-[2px]"><i class="fa-solid fa-arrow-up text-sm"></i></button>
+                </form>
+            </div>
+
+            <nav class="glass-nav h-[60px] flex justify-around items-center z-30 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] transition-colors duration-300">
+                <button onclick="switchTab('chat')" id="tab-chat" class="flex flex-col items-center justify-center w-full h-full space-y-1 text-brand-600 transition-colors duration-200">
+                    <i class="fa-regular fa-message text-lg"></i><span class="text-[10px] font-medium">Hearth Chat</span>
+                </button>
+                <button onclick="switchTab('board')" id="tab-board" class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-brand-600 transition-colors duration-200">
+                    <i class="fa-regular fa-clipboard text-lg"></i><span class="text-[10px] font-medium">Bulletin Plan</span>
+                </button>
+                <button onclick="switchTab('backpack')" id="tab-backpack" class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-brand-600 transition-colors duration-200">
+                    <i class="fa-solid fa-wallet text-lg"></i><span class="text-[10px] font-medium">Backpack</span>
+                </button>
+            </nav>
+        </div>
+
+        <div id="profile-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-xl p-6 shadow-xl space-y-4">
+                <h3 class="font-bold text-lg">Personal Goals Override</h3>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Set Custom Objective</label>
+                    <input type="text" id="modal-goal-input" class="w-full p-2 border rounded text-slate-900 bg-gray-50" placeholder="e.g. Master React Native">
+                </div>
+                <div class="flex gap-2 justify-end">
+                    <button onclick="toggleProfileModal()" class="px-3 py-1.5 text-xs bg-gray-200 text-slate-700 rounded-lg">Cancel</button>
+                    <button onclick="saveModalGoal()" class="px-3 py-1.5 text-xs bg-brand-600 text-white rounded-lg">Save Objective</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Database Helpers
+        function saveToDb(k, v) { localStorage.setItem('fs_' + k, JSON.stringify(v)); }
+        function loadFromDb(k) { const item = localStorage.getItem('fs_' + k); return item ? JSON.parse(item) : null; }
+
+        // Local Application Memory State
+        let currentUser = null;
+        let chatHistory = [];
+        let completedResources = [];
+        let startedResources = [];
+        let customGoals = [];
+        let backpackItems = ["Matches", "Warm Blanket", "Compass"];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check if profile exists to determine entry screen
+            currentUser = loadFromDb('profile');
+            completedResources = loadFromDb('progress_completed') || [];
+            startedResources = loadFromDb('progress_started') || [];
+            chatHistory = loadFromDb('chat') || [];
+            customGoals = loadFromDb('custom_goals') || [];
+            backpackItems = loadFromDb('backpack') || ["Matches", "Warm Blanket", "Compass"];
+
+            document.getElementById('auth-loading').style.opacity = '0';
+            setTimeout(() => document.getElementById('auth-loading').style.display = 'none', 500);
+
+            if (currentUser) {
+                showApp();
+            } else {
+                document.getElementById('onboarding-view').classList.remove('hidden');
+            }
         });
 
-        if (!res.ok) throw new Error('Network error received from server endpoint.');
-        
-        const d = await res.json();
-        
-        // 4. Inject the comprehensive, context-aware reply into the UI chat box
-        addMessage('ai', d.reply);
-        
-    } catch(e) { 
-        console.error("Fireside API Error:", e);
-        addMessage('ai', "I'm having trouble connecting to the hearth right now. Please try again in a brief moment!"); 
-    }
-});
+        function showApp() {
+            document.getElementById('onboarding-view').classList.add('hidden');
+            document.getElementById('app-view').classList.remove('hidden');
+            renderBackpack();
+            updateProgressBar();
+            
+            if (chatHistory.length === 0) {
+                addMessage('ai', `Welcome back to the fire, ${currentUser.name || 'Explorer'}. I am fully synthesized with your milestone tracking and pack assets. What milestone shall we focus down today?`);
+            } else {
+                chatHistory.forEach(msg => renderMessage(msg.role, msg.text));
+            }
+        }
+
+        // Onboarding Management
+        let currentStepNum = 1;
+        function nextStep(step) {
+            document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+            document.getElementById('step-' + step).classList.add('active');
+            
+            // Adjust indicator dots
+            for(let i=1; i<=3; i++) {
+                const dot = document.getElementById('dot-' + i);
+                if(i <= step) dot.className = "w-2 h-2 rounded-full bg-orange-600 transition-colors";
+                else dot.className = "w-2 h-2 rounded-full bg-gray-200 transition-colors";
+            }
+        }
+
+        function handleOnboardingSubmit(e) {
+            e.preventDefault();
+            currentUser = {
+                name: document.getElementById('user-name').value,
+                age: document.getElementById('user-age').value,
+                tracks: [document.getElementById('user-location').value],
+                bio: document.getElementById('user-bio').value,
+                goals: document.getElementById('user-issue').value
+            };
+            saveToDb('profile', currentUser);
+            saveToDb('backpack', backpackItems);
+            showApp();
+        }
+
+        // Tab Navigation
+        function switchTab(t) {
+            ['chat', 'board', 'backpack'].forEach(id => {
+                document.getElementById(id + '-section').classList.add('hidden');
+                document.getElementById('tab-' + id).className = "flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-brand-600 transition-colors duration-200";
+            });
+            document.getElementById(t + '-section').classList.remove('hidden');
+            document.getElementById('tab-' + t).className = "flex flex-col items-center justify-center w-full h-full space-y-1 text-brand-600 transition-colors duration-200";
+        }
+
+        // Backpack Rendering Controls
+        function renderBackpack() {
+            const container = document.getElementById('backpack-list');
+            container.innerHTML = backpackItems.map(item => `
+                <div class="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl border border-gray-100 dark:border-slate-600 text-center shadow-sm">
+                    <div class="w-10 h-10 bg-orange-100 dark:bg-brand-900/30 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fa-solid fa-briefcase text-sm"></i>
+                    </div>
+                    <span class="text-xs font-bold block text-slate-700 dark:text-slate-200">${item}</span>
+                </div>
+            `).join('');
+            saveToDb('backpack', backpackItems);
+        }
+
+        function addBackpackItemCustom() {
+            const input = document.getElementById('new-doc-input');
+            const val = input.value.trim();
+            if(!val) return;
+            if(!backpackItems.includes(val)) {
+                backpackItems.push(val);
+                renderBackpack();
+            }
+            input.value = '';
+        }
+
+        // Milestone Toggle Actions
+        function toggleModule(modName) {
+            const btn = document.getElementById(modName.includes('Mindfulness') ? 'mod-btn-mindfulness' : 'mod-btn-career');
+            if(!startedResources.includes(modName) && !completedResources.includes(modName)) {
+                startedResources.push(modName);
+                btn.innerText = "Complete";
+                btn.className = "px-3 py-1 bg-green-600 text-white text-xs font-bold rounded-lg transition";
+            } else if(startedResources.includes(modName)) {
+                startedResources = startedResources.filter(x => x !== modName);
+                completedResources.push(modName);
+                btn.innerText = "Completed 🎉";
+                btn.disabled = true;
+                btn.className = "px-3 py-1 bg-gray-400 text-white text-xs font-bold rounded-lg cursor-not-allowed";
+            }
+            saveToDb('progress_started', startedResources);
+            saveToDb('progress_completed', completedResources);
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
+            const total = 2; // Fixed example slots
+            const percent = Math.round((completedResources.length / total) * 100);
+            document.getElementById('progress-percent').innerText = percent + "%";
+            document.getElementById('progress-bar').style.width = percent + "%";
+        }
+
+        // Profile Overrides
+        function toggleProfileModal() {
+            document.getElementById('profile-modal').classList.toggle('hidden');
+        }
+
+        function saveModalGoal() {
+            const val = document.getElementById('modal-goal-input').value.trim();
+            if(val) {
+                customGoals.push({ id: Date.now(), text: val, completed: false });
+                saveToDb('custom_goals', customGoals);
+            }
+            toggleProfileModal();
+        }
+
+        // Secure Chat Logic Engine
+        function addMessage(sender, text) {
+            chatHistory.push({ role: sender, text: text });
+            saveToDb('chat', chatHistory);
+            renderMessage(sender, text);
+        }
+
+        function renderMessage(sender, text) {
+            const container = document.getElementById('chat-messages-container');
+            const msgRow = document.createElement('div');
+            msgRow.className = `flex w-full ${sender === 'user' ? 'justify-end' : 'justify-start'} fade-in mb-3`;
+            
+            const innerBubble = document.createElement('div');
+            innerBubble.className = `max-w-[85%] px-4 py-2.5 shadow-sm text-sm ${sender === 'user' ? 'msg-user' : 'msg-ai prose'}`;
+            
+            if (sender === 'user') {
+                innerBubble.innerText = text;
+            } else {
+                innerBubble.innerHTML = marked.parse(text);
+            }
+            
+            msgRow.appendChild(innerBubble);
+            container.appendChild(msgRow);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const container = document.getElementById('chat-messages-container');
+            const ind = document.createElement('div');
+            ind.id = 'typing-indicator-node';
+            ind.className = "flex justify-start items-center space-x-1 msg-ai px-4 py-3 max-w-[80px] mb-3";
+            ind.innerHTML = `
+                <div class="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-300 rounded-full typing-dot"></div>
+                <div class="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-300 rounded-full typing-dot"></div>
+                <div class="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-300 rounded-full typing-dot"></div>
+            `;
+            container.appendChild(ind);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const node = document.getElementById('typing-indicator-node');
+            if(node) node.remove();
+        }
+
+        document.getElementById('chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const txt = input.value.trim();
+            if(!txt) return;
+
+            addMessage('user', txt);
+            input.value = '';
+            showTypingIndicator();
+
+            try {
+                // package absolute state variables securely to feed background systemic context
+                const userContext = {
+                    profile: loadFromDb('profile') || {},
+                    completedResources: loadFromDb('progress_completed') || [],
+                    startedResources: loadFromDb('progress_started') || [],
+                    customGoals: loadFromDb('custom_goals') || [],
+                    backpackItems: loadFromDb('backpack') || []
+                };
+
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        messages: chatHistory,
+                        context: userContext
+                    })
+                });
+
+                removeTypingIndicator();
+                if (!res.ok) throw new Error('Unresponsive backend channel context payload routing.');
+                
+                const d = await res.json();
+                addMessage('ai', d.reply);
+                
+            } catch(err) { 
+                console.error("Fireside API Pipeline Connection Error:", err);
+                removeTypingIndicator();
+                addMessage('ai', "The campfire crackled. I hit an obstacle connecting with the Nemotron inference gateway. Please try sending your message again shortly!"); 
+            }
+        });
+    </script>
+</body>
+</html>

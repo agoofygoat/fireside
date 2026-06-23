@@ -1,6 +1,7 @@
 const fetch = require('node-fetch');
 
 export default async function handler(req, res) {
+    // Only allow incoming POST traffic
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -10,56 +11,51 @@ export default async function handler(req, res) {
         const apiKey = process.env.FIRE_API_KEY;
 
         if (!apiKey) {
-            return res.status(500).json({ error: 'Server configuration error: Missing FIRE_API_KEY.' });
+            return res.status(500).json({ error: 'Server configuration failure: Missing FIRE_API_KEY environment binding.' });
         }
 
-        // Deconstruct the absolute tracking context passed from the frontend local state
+        // Deconstruct context tracking elements passed directly from client local storage
         const {
             profile = {},
             completedResources = [],
             startedResources = [],
             customGoals = [],
-            backpackItems = [],
-            moodHistory = []
+            backpackItems = []
         } = context || {};
 
-        // Build a highly dynamic system prompt mapping every single element of user state
-        const systemPrompt = `You are Fireside AI, an empathetic, highly adaptive personalized guide and mentor. 
-You possess complete and absolute context regarding the user's profile, history, active progress, and items. 
+        // Construct system engineering directive using absolute variables
+        const systemPrompt = `You are Fireside AI, an empathetic, premium guide and personal mentor.
+You possess absolute structural context regarding the user's demographic profile, tracking milestones, progress history, and collected backpack components.
 
-CURRENT USER PROFILE & DEMOGRAPHICS:
-- Name: ${profile.name || 'Explorer'}
-- Demographics/Bio: ${profile.bio || 'Not provided'}
-- Primary Goals: ${profile.goals || 'General growth'}
-- Focused Tracks: ${profile.tracks ? JSON.stringify(profile.tracks) : 'All'}
+CURRENT USER METRICS:
+- Name/Handle: ${profile.name || 'Explorer'}
+- Demographics & Narrative Background: ${profile.bio || 'Not filled out yet'}
+- Focus Areas: ${profile.tracks ? JSON.stringify(profile.tracks) : 'All General Programs'}
+- Underlying Issue Orientation: ${profile.goals || 'General Development'}
 
-ACTION PLAN & MILESTONE PROGRESS:
-- Active/Started Modules: ${startedResources.length > 0 ? startedResources.join(', ') : 'None yet'}
-- Successfully Completed Modules: ${completedResources.length > 0 ? completedResources.join(', ') : 'None yet'}
-- Custom User Goals: ${customGoals.length > 0 ? JSON.stringify(customGoals) : 'None configured'}
+TRACK MODULE PROGRESS:
+- Active Ongoing Milestones: ${startedResources.length > 0 ? startedResources.join(', ') : 'None currently selected'}
+- Finished / Checked Modules: ${completedResources.length > 0 ? completedResources.join(', ') : 'None completed yet'}
+- Extra User Directives: ${customGoals.length > 0 ? JSON.stringify(customGoals) : 'No custom directives mapped'}
 
-USER WALLET & BACKPACK INVENTORY:
-- Items Collected: ${backpackItems.length > 0 ? JSON.stringify(backpackItems) : 'Empty'}
+USER BACKPACK COMPONENT WALLET:
+- Available Items / Badges Stack: ${backpackItems.length > 0 ? JSON.stringify(backpackItems) : 'Empty'}
 
-RECENT MOOD & RECOVERY LOGS:
-- Historical Entries: ${moodHistory.length > 0 ? JSON.stringify(moodHistory.slice(-5)) : 'No logs recorded yet'}
+CRITICAL OPERATIONAL INSTRUCTIONS:
+1. Maintain continuity by directly incorporating their backpack items or module status into your guidance when appropriate.
+2. Provide a supportive, conversational tone.
+3. Keep answers concise, highly specific, actionable, and formatted beautifully using Markdown tags.`;
 
-INSTRUCTIONS:
-1. Always reference or gracefully weave in their active progress, current goals, or backpack inventory when relevant to build continuity.
-2. Respond empathetically and adapt your complexity to match their experience level.
-3. Keep answers interactive, concise, and structured cleanly using Markdown formatting.`;
-
-        // Assemble messages matching OpenAI-compatible formatting required by NVIDIA NIM
+        // Map client parameters safely to OpenAI/NVIDIA API JSON arrays
         const formattedMessages = [
             { role: 'system', content: systemPrompt },
             ...messages.map(msg => ({
-                // Map the front-end 'ai' role back to standard LLM 'assistant' role
                 role: msg.role === 'ai' || msg.role === 'assistant' ? 'assistant' : 'user',
                 content: msg.text || msg.content
             }))
         ];
 
-        // Call the high-powered NVIDIA NIM Cloud inference endpoint
+        // Fetch command directly from the live NVIDIA NIM ecosystem endpoint
         const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -67,7 +63,7 @@ INSTRUCTIONS:
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'meta/llama-3.3-70b-instruct', // Premium enterprise instruction model hosted on NIM
+                model: 'nvidia/nemotron-3-super-120b-a12b', // Explicit Model ID mapping
                 messages: formattedMessages,
                 max_tokens: 1024,
                 temperature: 0.7,
@@ -76,18 +72,19 @@ INSTRUCTIONS:
         });
 
         if (!response.ok) {
-            const errText = await response.text();
-            console.error('NVIDIA NIM API Error:', errText);
-            return res.status(response.status).json({ error: 'Error communicating with AI engine.' });
+            const errPayload = await response.text();
+            console.error('NVIDIA Infrastructure Rejection Log:', errPayload);
+            return res.status(response.status).json({ error: `NIM Route Error Status: ${response.statusText}` });
         }
 
         const data = await response.json();
         const aiReply = data.choices[0].message.content;
 
+        // Return unified clear response JSON block to front-end handler
         return res.status(200).json({ reply: aiReply });
 
     } catch (error) {
-        console.error('Server Internal Error:', error);
-        return res.status(500).json({ error: 'Internal server error.' });
+        console.error('Server Functional Crash Log:', error);
+        return res.status(500).json({ error: 'Internal server proxy failure.' });
     }
 }
