@@ -520,5 +520,14 @@
             }
         }
     </script>
+<script>
+    // Once the page finishes loading, hide the initializing overlay
+    window.addEventListener('DOMContentLoaded', () => {
+        const loadingOverlay = document.getElementById('auth-loading');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>
