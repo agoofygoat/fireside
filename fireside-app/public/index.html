@@ -1,0 +1,48 @@
+// --- REPLACE YOUR LEGACY CHAT SUBMIT EVENT LISTENER WITH THIS OPTIMIZED VERSION ---
+document.getElementById('chat-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('chat-input');
+    const txt = input.value.trim();
+    if(!txt) return;
+
+    // 1. Add the user message immediately to the UI
+    addMessage('user', txt);
+    input.value = '';
+    
+    // Auto-scroll chat area down
+    const container = document.getElementById('chat-messages-container');
+    if (container) container.scrollTop = container.scrollHeight;
+
+    try {
+        // 2. Dynamically gather up EVERY element of progress and user data for strict context integration
+        const userContext = {
+            profile: loadFromDb('profile') || {},
+            completedResources: loadFromDb('progress_completed') || [],
+            startedResources: loadFromDb('progress_started') || [],
+            customGoals: loadFromDb('custom_goals') || [],
+            backpackItems: loadFromDb('backpack') || [],
+            moodHistory: loadFromDb('moods') || []
+        };
+
+        // 3. Post the request to our secure local Vercel backend route
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                messages: chatHistory, // Passes full continuous conversation chain
+                context: userContext    // Passes all state, progress, items, and settings
+            })
+        });
+
+        if (!res.ok) throw new Error('Network error received from server endpoint.');
+        
+        const d = await res.json();
+        
+        // 4. Inject the comprehensive, context-aware reply into the UI chat box
+        addMessage('ai', d.reply);
+        
+    } catch(e) { 
+        console.error("Fireside API Error:", e);
+        addMessage('ai', "I'm having trouble connecting to the hearth right now. Please try again in a brief moment!"); 
+    }
+});
