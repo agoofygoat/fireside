@@ -1,7 +1,6 @@
 const fetch = require('node-fetch');
 
 export default async function handler(req, res) {
-    // Only allow incoming POST traffic
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -14,7 +13,6 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Server configuration failure: Missing FIRE_API_KEY environment binding.' });
         }
 
-        // Deconstruct context tracking elements passed directly from client local storage
         const {
             profile = {},
             completedResources = [],
@@ -23,7 +21,6 @@ export default async function handler(req, res) {
             backpackItems = []
         } = context || {};
 
-        // Construct system engineering directive using absolute variables
         const systemPrompt = `You are Fireside AI, an empathetic, premium guide and personal mentor.
 You possess absolute structural context regarding the user's demographic profile, tracking milestones, progress history, and collected backpack components.
 
@@ -31,7 +28,7 @@ CURRENT USER METRICS:
 - Name/Handle: ${profile.name || 'Explorer'}
 - Demographics & Narrative Background: ${profile.bio || 'Not filled out yet'}
 - Focus Areas: ${profile.tracks ? JSON.stringify(profile.tracks) : 'All General Programs'}
-- Underlying Issue Orientation: ${profile.goals || 'General Development'}
+- Underlying Goal Orientation: ${profile.goals || 'General Development'}
 
 TRACK MODULE PROGRESS:
 - Active Ongoing Milestones: ${startedResources.length > 0 ? startedResources.join(', ') : 'None currently selected'}
@@ -46,7 +43,6 @@ CRITICAL OPERATIONAL INSTRUCTIONS:
 2. Provide a supportive, conversational tone.
 3. Keep answers concise, highly specific, actionable, and formatted beautifully using Markdown tags.`;
 
-        // Map client parameters safely to OpenAI/NVIDIA API JSON arrays
         const formattedMessages = [
             { role: 'system', content: systemPrompt },
             ...messages.map(msg => ({
@@ -55,7 +51,6 @@ CRITICAL OPERATIONAL INSTRUCTIONS:
             }))
         ];
 
-        // Fetch command directly from the live NVIDIA NIM ecosystem endpoint
         const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -63,7 +58,7 @@ CRITICAL OPERATIONAL INSTRUCTIONS:
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'nvidia/nemotron-3-super-120b-a12b', // Explicit Model ID mapping
+                model: 'nvidia/nemotron-3-super-120b-a12b',
                 messages: formattedMessages,
                 max_tokens: 1024,
                 temperature: 0.7,
@@ -80,7 +75,6 @@ CRITICAL OPERATIONAL INSTRUCTIONS:
         const data = await response.json();
         const aiReply = data.choices[0].message.content;
 
-        // Return unified clear response JSON block to front-end handler
         return res.status(200).json({ reply: aiReply });
 
     } catch (error) {

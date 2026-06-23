@@ -86,23 +86,11 @@
         
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
         
-        /* Loading Overlay */
         #auth-loading { position: absolute; inset: 0; background: #fff7ed; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; transition: opacity 0.5s ease-out; }
         .dark #auth-loading { background: #0f172a; }
         
         html, body { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden; }
         
-        /* Checkbox Styles */
-        .goal-check:checked + div { background-color: #10b981; border-color: #10b981; }
-        .goal-check:checked + div i { opacity: 1; transform: scale(1); }
-        .goal-text.completed { text-decoration: line-through; color: #9ca3af; }
-        .dark .goal-text.completed { color: #64748b; }
-
-        /* Sort Buttons */
-        .sort-btn.active { background-color: #1e293b; color: white; border-color: #1e293b; }
-        .dark .sort-btn.active { background-color: #f1f5f9; color: #0f172a; border-color: #f1f5f9; }
-
-        /* Wizard Steps */
         .wizard-step { display: none; }
         .wizard-step.active { display: block; animation: fadeIn 0.4s ease-out; }
     </style>
@@ -125,7 +113,7 @@
                             <i class="fa-solid fa-fire text-orange-600 text-2xl"></i>
                         </div>
                         <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Fireside</h1>
-                        <p class="text-xs text-slate-500 mt-1">Personalized guidance. Offline security.</p>
+                        <p class="text-xs text-slate-500 mt-1">Personalized guidance. Secure deployment.</p>
                     </div>
 
                     <div class="flex justify-center gap-2 mb-6">
@@ -160,14 +148,12 @@
                         <div id="step-2" class="wizard-step">
                             <h3 class="text-lg font-bold text-slate-800 mb-2 text-center">Current Context.</h3>
                             <p class="text-xs text-slate-500 text-center mb-4">Briefly outline your background summary.</p>
-                            
                             <div class="bg-orange-50 p-4 rounded-xl border border-orange-100 space-y-3">
                                 <div>
                                     <label class="block text-[10px] font-bold text-orange-700 mb-1 uppercase">A short bio or background</label>
                                     <textarea id="user-bio" class="w-full h-20 px-2 py-1.5 rounded border border-orange-200 text-sm focus:border-orange-500 outline-none text-slate-900 resize-none" placeholder="What brings you to Fireside?"></textarea>
                                 </div>
                             </div>
-
                             <div class="flex gap-3 mt-4">
                                 <button type="button" onclick="nextStep(1)" class="flex-1 bg-white border border-gray-200 text-gray-600 font-bold py-3 rounded-lg hover:bg-gray-50 transition">Back</button>
                                 <button type="button" onclick="nextStep(3)" class="flex-[2] bg-slate-800 text-white font-bold py-3 rounded-lg shadow hover:bg-slate-900 transition">Next <i class="fa-solid fa-arrow-right ml-1"></i></button>
@@ -176,7 +162,6 @@
 
                         <div id="step-3" class="wizard-step">
                             <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">What's your primary goal?</h3>
-                            
                             <div class="mb-6">
                                 <label class="block text-xs font-semibold text-slate-500 mb-2">I want to focus on...</label>
                                 <div class="relative">
@@ -189,7 +174,6 @@
                                     <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-orange-400 text-xs pointer-events-none"></i>
                                 </div>
                             </div>
-
                             <div class="flex gap-3">
                                 <button type="button" onclick="nextStep(2)" class="flex-1 bg-white border border-gray-200 text-gray-600 font-bold py-3 rounded-lg hover:bg-gray-50 transition">Back</button>
                                 <button type="submit" class="flex-[2] bg-gradient-to-r from-orange-600 to-red-600 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-xl transform transition active:scale-[0.98]">
@@ -259,7 +243,7 @@
                                 <div>
                                     <h4 class="font-bold text-sm text-slate-800 dark:text-white">Career Acceleration Pipeline</h4>
                                     <p class="text-xs text-slate-500 mt-1">Portfolio audits, optimization strategy, applications.</p>
-                                }</div>
+                                </div>
                                 <button onclick="toggleModule('Career Acceleration Pipeline')" id="mod-btn-career" class="px-3 py-1 bg-brand-100 text-brand-700 text-xs font-bold rounded-lg hover:bg-brand-200 transition">Start</button>
                             </div>
                         </div>
@@ -300,6 +284,9 @@
 
             <div id="chat-input-area" class="bg-white dark:bg-slate-900 border-t border-orange-100 dark:border-slate-800 p-3 sticky bottom-[60px] z-20 shadow-sm transition-colors duration-300">
                 <form id="chat-form" class="flex gap-2 items-end">
+                    <button type="button" id="voice-btn" class="bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-slate-700 transition shadow-sm mb-[2px]" title="Toggle Speech-to-Text">
+                        <i class="fa-solid fa-microphone text-sm"></i>
+                    </button>
                     <input type="text" id="chat-input" class="flex-1 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-2xl px-4 py-3 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition border border-gray-100 dark:border-slate-700 dark:placeholder-slate-500" placeholder="Ask your guide anything..." autocomplete="off">
                     <button type="submit" class="bg-brand-600 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-brand-700 transition shadow-sm mb-[2px]"><i class="fa-solid fa-arrow-up text-sm"></i></button>
                 </form>
@@ -323,7 +310,7 @@
                 <h3 class="font-bold text-lg">Personal Goals Override</h3>
                 <div>
                     <label class="block text-xs text-gray-400 mb-1">Set Custom Objective</label>
-                    <input type="text" id="modal-goal-input" class="w-full p-2 border rounded text-slate-900 bg-gray-50" placeholder="e.g. Master React Native">
+                    <input type="text" id="modal-goal-input" class="w-full p-2 border rounded text-slate-900 bg-gray-50" placeholder="e.g. Master Open Source">
                 </div>
                 <div class="flex gap-2 justify-end">
                     <button onclick="toggleProfileModal()" class="px-3 py-1.5 text-xs bg-gray-200 text-slate-700 rounded-lg">Cancel</button>
@@ -335,11 +322,9 @@
     </div>
 
     <script>
-        // Database Helpers
         function saveToDb(k, v) { localStorage.setItem('fs_' + k, JSON.stringify(v)); }
         function loadFromDb(k) { const item = localStorage.getItem('fs_' + k); return item ? JSON.parse(item) : null; }
 
-        // Local Application Memory State
         let currentUser = null;
         let chatHistory = [];
         let completedResources = [];
@@ -348,7 +333,6 @@
         let backpackItems = ["Matches", "Warm Blanket", "Compass"];
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Check if profile exists to determine entry screen
             currentUser = loadFromDb('profile');
             completedResources = loadFromDb('progress_completed') || [];
             startedResources = loadFromDb('progress_started') || [];
@@ -364,6 +348,7 @@
             } else {
                 document.getElementById('onboarding-view').classList.remove('hidden');
             }
+            setupVoiceInput();
         });
 
         function showApp() {
@@ -372,20 +357,34 @@
             renderBackpack();
             updateProgressBar();
             
+            // Re-sync starting module triggers visually with matching state arrays
+            if (startedResources.includes('Mindfulness Foundations')) {
+                const b = document.getElementById('mod-btn-mindfulness');
+                if(b) { b.innerText = "Complete"; b.className = "px-3 py-1 bg-green-600 text-white text-xs font-bold rounded-lg transition"; }
+            } else if (completedResources.includes('Mindfulness Foundations')) {
+                const b = document.getElementById('mod-btn-mindfulness');
+                if(b) { b.innerText = "Completed 🎉"; b.disabled = true; b.className = "px-3 py-1 bg-gray-400 text-white text-xs font-bold rounded-lg cursor-not-allowed"; }
+            }
+
+            if (startedResources.includes('Career Acceleration Pipeline')) {
+                const b = document.getElementById('mod-btn-career');
+                if(b) { b.innerText = "Complete"; b.className = "px-3 py-1 bg-green-600 text-white text-xs font-bold rounded-lg transition"; }
+            } else if (completedResources.includes('Career Acceleration Pipeline')) {
+                const b = document.getElementById('mod-btn-career');
+                if(b) { b.innerText = "Completed 🎉"; b.disabled = true; b.className = "px-3 py-1 bg-gray-400 text-white text-xs font-bold rounded-lg cursor-not-allowed"; }
+            }
+
             if (chatHistory.length === 0) {
-                addMessage('ai', `Welcome back to the fire, ${currentUser.name || 'Explorer'}. I am fully synthesized with your milestone tracking and pack assets. What milestone shall we focus down today?`);
+                addMessage('ai', `Welcome back to the fire, ${currentUser.name || 'Explorer'}. I am fully synchronized with your tracking data and pack inventory. What objective shall we work toward today?`);
             } else {
                 chatHistory.forEach(msg => renderMessage(msg.role, msg.text));
             }
         }
 
-        // Onboarding Management
         let currentStepNum = 1;
         function nextStep(step) {
             document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
             document.getElementById('step-' + step).classList.add('active');
-            
-            // Adjust indicator dots
             for(let i=1; i<=3; i++) {
                 const dot = document.getElementById('dot-' + i);
                 if(i <= step) dot.className = "w-2 h-2 rounded-full bg-orange-600 transition-colors";
@@ -407,7 +406,6 @@
             showApp();
         }
 
-        // Tab Navigation
         function switchTab(t) {
             ['chat', 'board', 'backpack'].forEach(id => {
                 document.getElementById(id + '-section').classList.add('hidden');
@@ -417,9 +415,9 @@
             document.getElementById('tab-' + t).className = "flex flex-col items-center justify-center w-full h-full space-y-1 text-brand-600 transition-colors duration-200";
         }
 
-        // Backpack Rendering Controls
         function renderBackpack() {
             const container = document.getElementById('backpack-list');
+            if(!container) return;
             container.innerHTML = backpackItems.map(item => `
                 <div class="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl border border-gray-100 dark:border-slate-600 text-center shadow-sm">
                     <div class="w-10 h-10 bg-orange-100 dark:bg-brand-900/30 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-2">
@@ -429,6 +427,10 @@
                 </div>
             `).join('');
             saveToDb('backpack', backpackItems);
+            
+            const fillPct = Math.min(Math.round((backpackItems.length / 12) * 100), 100);
+            document.getElementById('backpack-percent').innerText = fillPct + "%";
+            document.getElementById('backpack-bar').style.width = fillPct + "%";
         }
 
         function addBackpackItemCustom() {
@@ -442,7 +444,6 @@
             input.value = '';
         }
 
-        // Milestone Toggle Actions
         function toggleModule(modName) {
             const btn = document.getElementById(modName.includes('Mindfulness') ? 'mod-btn-mindfulness' : 'mod-btn-career');
             if(!startedResources.includes(modName) && !completedResources.includes(modName)) {
@@ -462,13 +463,12 @@
         }
 
         function updateProgressBar() {
-            const total = 2; // Fixed example slots
+            const total = 2;
             const percent = Math.round((completedResources.length / total) * 100);
             document.getElementById('progress-percent').innerText = percent + "%";
             document.getElementById('progress-bar').style.width = percent + "%";
         }
 
-        // Profile Overrides
         function toggleProfileModal() {
             document.getElementById('profile-modal').classList.toggle('hidden');
         }
@@ -482,7 +482,6 @@
             toggleProfileModal();
         }
 
-        // Secure Chat Logic Engine
         function addMessage(sender, text) {
             chatHistory.push({ role: sender, text: text });
             saveToDb('chat', chatHistory);
@@ -491,6 +490,7 @@
 
         function renderMessage(sender, text) {
             const container = document.getElementById('chat-messages-container');
+            if(!container) return;
             const msgRow = document.createElement('div');
             msgRow.className = `flex w-full ${sender === 'user' ? 'justify-end' : 'justify-start'} fade-in mb-3`;
             
@@ -510,6 +510,7 @@
 
         function showTypingIndicator() {
             const container = document.getElementById('chat-messages-container');
+            if(!container) return;
             const ind = document.createElement('div');
             ind.id = 'typing-indicator-node';
             ind.className = "flex justify-start items-center space-x-1 msg-ai px-4 py-3 max-w-[80px] mb-3";
@@ -527,6 +528,35 @@
             if(node) node.remove();
         }
 
+        function setupVoiceInput() {
+            const btn = document.getElementById('voice-btn');
+            if (!btn) return;
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SR = window.SpeechRecognition || window.webkitSpeechRecognition; 
+                const rec = new SR(); 
+                rec.lang = 'en-US';
+                let isListening = false;
+                
+                rec.onresult = (e) => { 
+                    const chatInput = document.getElementById('chat-input');
+                    if(chatInput) {
+                        chatInput.value = e.results[0][0].transcript; 
+                        chatInput.focus(); 
+                    }
+                };
+                rec.onstart = () => { isListening = true; btn.classList.add('text-red-500', 'animate-pulse'); };
+                rec.onend = () => { isListening = false; btn.classList.remove('text-red-500', 'animate-pulse'); };
+                rec.onerror = (e) => { console.error("Speech error", e); isListening = false; btn.classList.remove('text-red-500', 'animate-pulse'); };
+                
+                btn.addEventListener('click', (e) => { 
+                    e.preventDefault(); 
+                    if (isListening) { rec.stop(); } else { try { rec.start(); } catch(err){ rec.stop(); } }
+                });
+            } else { 
+                btn.style.display = 'none'; 
+            }
+        }
+
         document.getElementById('chat-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const input = document.getElementById('chat-input');
@@ -538,7 +568,6 @@
             showTypingIndicator();
 
             try {
-                // package absolute state variables securely to feed background systemic context
                 const userContext = {
                     profile: loadFromDb('profile') || {},
                     completedResources: loadFromDb('progress_completed') || [],
@@ -557,13 +586,13 @@
                 });
 
                 removeTypingIndicator();
-                if (!res.ok) throw new Error('Unresponsive backend channel context payload routing.');
+                if (!res.ok) throw new Error('Unresponsive backend endpoint query response.');
                 
                 const d = await res.json();
                 addMessage('ai', d.reply);
                 
             } catch(err) { 
-                console.error("Fireside API Pipeline Connection Error:", err);
+                console.error("Fireside API Error:", err);
                 removeTypingIndicator();
                 addMessage('ai', "The campfire crackled. I hit an obstacle connecting with the Nemotron inference gateway. Please try sending your message again shortly!"); 
             }
