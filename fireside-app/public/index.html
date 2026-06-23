@@ -10,11 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
@@ -22,29 +19,17 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         brand: {
-                            50: '#fff7ed',
-                            100: '#ffedd5',
-                            200: '#fed7aa',
-                            300: '#fdba74',
-                            400: '#fb923c',
-                            500: '#f97316',
-                            600: '#ea580c',
-                            700: '#c2410c',
-                            800: '#9a3412',
-                            900: '#7c2d12',
+                            50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74',
+                            400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c',
+                            800: '#9a3412', 900: '#7c2d12',
                         },
-                        slate: {
-                            850: '#1e293b', 
-                        }
+                        slate: { 850: '#1e293b' }
                     },
                     boxShadow: {
-                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-                        'floating': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)'
                     }
                 }
             }
@@ -52,23 +37,19 @@
     </script>
 
     <style>
-        /* Modern Scrollbar */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .dark ::-webkit-scrollbar-thumb { background: #475569; }
 
-        /* Animations */
         .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Typing Dots */
         .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-        /* UI Elements */
         .msg-user { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border-radius: 18px 18px 4px 18px; }
         .msg-ai { background-color: #ffffff; color: #334155; border-radius: 18px 18px 18px 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .dark .msg-ai { background-color: #334155; color: #e2e8f0; box-shadow: none; border: 1px solid #475569; }
@@ -79,18 +60,15 @@
         .prose li::before { content: ""; position: absolute; left: 0.25rem; top: 0.6rem; width: 4px; height: 4px; background-color: #ea580c; border-radius: 50%; }
         .prose strong { color: #0f172a; font-weight: 600; }
         .dark .prose strong { color: #f1f5f9; }
-        .prose a { color: #ea580c; text-decoration: underline; }
         
         .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid #fed7aa; }
         .dark .glass-nav { background: rgba(15, 23, 42, 0.95); border-top: 1px solid #334155; }
-        
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
         
         #auth-loading { position: absolute; inset: 0; background: #fff7ed; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; transition: opacity 0.5s ease-out; }
         .dark #auth-loading { background: #0f172a; }
         
         html, body { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden; }
-        
         .wizard-step { display: none; }
         .wizard-step.active { display: block; animation: fadeIn 0.4s ease-out; }
     </style>
@@ -107,7 +85,6 @@
         <div id="onboarding-view" class="absolute inset-0 z-50 bg-gradient-to-br from-orange-400 to-red-600 overflow-y-auto hidden">
             <div class="min-h-full w-full flex items-center justify-center p-4 py-10">
                 <div class="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-8 fade-in relative">
-                    
                     <div class="mb-6 text-center">
                         <div class="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center shadow-inner mb-3 mx-auto">
                             <i class="fa-solid fa-fire text-orange-600 text-2xl"></i>
@@ -123,7 +100,6 @@
                     </div>
 
                     <form id="demographics-form" class="relative" onsubmit="handleOnboardingSubmit(event)">
-                        
                         <div id="step-1" class="wizard-step active">
                             <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">Let's get to know you.</h3>
                             <div class="space-y-4">
@@ -181,14 +157,12 @@
                                 </button>
                             </div>
                         </div>
-
                     </form>
                 </div>
             </div>
         </div>
 
         <div id="app-view" class="flex flex-col h-full hidden bg-orange-50 dark:bg-slate-900 relative overflow-hidden">
-            
             <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-orange-100 dark:border-slate-800 z-10 px-4 py-3 flex justify-between items-center sticky top-0 transition-colors duration-300">
                 <div class="flex items-center space-x-2">
                     <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-sm">
@@ -199,21 +173,19 @@
                         <span id="streak-display" class="text-[10px] text-orange-600 dark:text-orange-400 font-medium">🔥 Active Tracker</span>
                     </div>
                 </div>
-                <button onclick="toggleProfileModal()" class="p-2 rounded-full hover:bg-orange-100 dark:hover:bg-slate-800 text-orange-400 transition" title="Profile Configuration">
+                <button onclick="toggleProfileModal()" class="p-2 rounded-full hover:bg-orange-100 dark:hover:bg-slate-800 text-orange-400 transition">
                     <i class="fa-solid fa-user-gear text-sm"></i>
                 </button>
             </header>
 
             <div class="flex-1 overflow-hidden relative">
-                
                 <div id="chat-section" class="h-full flex flex-col absolute inset-0 bg-orange-50/30 dark:bg-slate-900/30">
-                    <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 pb-24 scroll-smooth">
-                        </div>
+                    <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 pb-24 scroll-smooth"></div>
                 </div>
 
                 <div id="board-section" class="h-full overflow-y-auto p-4 absolute inset-0 hidden bg-orange-50 dark:bg-slate-900 pb-24">
                     <div class="max-w-xl mx-auto space-y-6">
-                        <div id="progress-container" class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-orange-100 dark:border-slate-700 shadow-sm fade-in transition-colors duration-300">
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-orange-100 dark:border-slate-700 shadow-sm transition-colors duration-300">
                             <div class="flex justify-between items-end mb-2">
                                 <div>
                                     <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">My Milestones</h2>
@@ -226,10 +198,7 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between mt-2">
-                            <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Action Plan</h3>
-                        </div>
-
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Action Plan</h3>
                         <div id="board-content" class="space-y-4">
                             <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm flex justify-between items-center">
                                 <div>
@@ -256,7 +225,7 @@
                             <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">My Backpack Wallet</h2>
                             <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Store utility assets, badges, or collection markers earned on your track.</p>
                             
-                            <div id="backpack-progress" class="mb-6">
+                            <div class="mb-6">
                                 <div class="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
                                     <span>Inventory Space Fill</span>
                                     <span id="backpack-percent">25%</span>
@@ -266,20 +235,18 @@
                                 </div>
                             </div>
 
-                            <div id="backpack-list" class="grid grid-cols-2 gap-3">
-                                </div>
+                            <div id="backpack-list" class="grid grid-cols-2 gap-3"></div>
                             
                             <div class="mt-6 pt-4 border-t border-gray-100 dark:border-slate-700">
                                 <p class="text-xs font-bold text-slate-400 dark:text-slate-500 mb-2 uppercase tracking-wide">Pack custom item slot:</p>
                                 <div class="flex gap-2">
-                                    <input type="text" id="new-doc-input" placeholder="Label, e.g. Master Compass..." class="flex-1 px-3 py-2 border rounded-lg text-sm focus:border-brand-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400">
+                                    <input type="text" id="new-doc-input" placeholder="Label, e.g. Master Compass..." class="flex-1 px-3 py-2 border rounded-lg text-sm focus:border-brand-500 outline-none dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                                     <button onclick="addBackpackItemCustom()" class="bg-slate-800 dark:bg-slate-600 text-white w-10 rounded-lg flex items-center justify-center hover:bg-slate-900 transition"><i class="fa-solid fa-plus"></i></button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div id="chat-input-area" class="bg-white dark:bg-slate-900 border-t border-orange-100 dark:border-slate-800 p-3 sticky bottom-[60px] z-20 shadow-sm transition-colors duration-300">
@@ -287,7 +254,7 @@
                     <button type="button" id="voice-btn" class="bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-slate-700 transition shadow-sm mb-[2px]" title="Toggle Speech-to-Text">
                         <i class="fa-solid fa-microphone text-sm"></i>
                     </button>
-                    <input type="text" id="chat-input" class="flex-1 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-2xl px-4 py-3 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition border border-gray-100 dark:border-slate-700 dark:placeholder-slate-500" placeholder="Ask your guide anything..." autocomplete="off">
+                    <input type="text" id="chat-input" class="flex-1 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-2xl px-4 py-3 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition border border-gray-100 dark:border-slate-700" placeholder="Ask your guide anything..." autocomplete="off">
                     <button type="submit" class="bg-brand-600 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-brand-700 transition shadow-sm mb-[2px]"><i class="fa-solid fa-arrow-up text-sm"></i></button>
                 </form>
             </div>
@@ -318,7 +285,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
@@ -357,7 +323,6 @@
             renderBackpack();
             updateProgressBar();
             
-            // Re-sync starting module triggers visually with matching state arrays
             if (startedResources.includes('Mindfulness Foundations')) {
                 const b = document.getElementById('mod-btn-mindfulness');
                 if(b) { b.innerText = "Complete"; b.className = "px-3 py-1 bg-green-600 text-white text-xs font-bold rounded-lg transition"; }
@@ -381,7 +346,6 @@
             }
         }
 
-        let currentStepNum = 1;
         function nextStep(step) {
             document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
             document.getElementById('step-' + step).classList.add('active');
@@ -469,9 +433,7 @@
             document.getElementById('progress-bar').style.width = percent + "%";
         }
 
-        function toggleProfileModal() {
-            document.getElementById('profile-modal').classList.toggle('hidden');
-        }
+        function toggleProfileModal() { document.getElementById('profile-modal').classList.toggle('hidden'); }
 
         function saveModalGoal() {
             const val = document.getElementById('modal-goal-input').value.trim();
@@ -497,11 +459,8 @@
             const innerBubble = document.createElement('div');
             innerBubble.className = `max-w-[85%] px-4 py-2.5 shadow-sm text-sm ${sender === 'user' ? 'msg-user' : 'msg-ai prose'}`;
             
-            if (sender === 'user') {
-                innerBubble.innerText = text;
-            } else {
-                innerBubble.innerHTML = marked.parse(text);
-            }
+            if (sender === 'user') { innerBubble.innerText = text; } 
+            else { innerBubble.innerHTML = marked.parse(text); }
             
             msgRow.appendChild(innerBubble);
             container.appendChild(msgRow);
@@ -533,16 +492,12 @@
             if (!btn) return;
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 const SR = window.SpeechRecognition || window.webkitSpeechRecognition; 
-                const rec = new SR(); 
-                rec.lang = 'en-US';
+                const rec = new SR(); rec.lang = 'en-US';
                 let isListening = false;
                 
                 rec.onresult = (e) => { 
                     const chatInput = document.getElementById('chat-input');
-                    if(chatInput) {
-                        chatInput.value = e.results[0][0].transcript; 
-                        chatInput.focus(); 
-                    }
+                    if(chatInput) { chatInput.value = e.results[0][0].transcript; chatInput.focus(); }
                 };
                 rec.onstart = () => { isListening = true; btn.classList.add('text-red-500', 'animate-pulse'); };
                 rec.onend = () => { isListening = false; btn.classList.remove('text-red-500', 'animate-pulse'); };
@@ -552,9 +507,7 @@
                     e.preventDefault(); 
                     if (isListening) { rec.stop(); } else { try { rec.start(); } catch(err){ rec.stop(); } }
                 });
-            } else { 
-                btn.style.display = 'none'; 
-            }
+            } else { btn.style.display = 'none'; }
         }
 
         document.getElementById('chat-form').addEventListener('submit', async (e) => {
@@ -579,14 +532,11 @@
                 const res = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        messages: chatHistory,
-                        context: userContext
-                    })
+                    body: JSON.stringify({ messages: chatHistory, context: userContext })
                 });
 
                 removeTypingIndicator();
-                if (!res.ok) throw new Error('Unresponsive backend endpoint query response.');
+                if (!res.ok) throw new Error('Unresponsive endpoint payload routing.');
                 
                 const d = await res.json();
                 addMessage('ai', d.reply);
@@ -594,7 +544,7 @@
             } catch(err) { 
                 console.error("Fireside API Error:", err);
                 removeTypingIndicator();
-                addMessage('ai', "The campfire crackled. I hit an obstacle connecting with the Nemotron inference gateway. Please try sending your message again shortly!"); 
+                addMessage('ai', "The campfire crackled. Let me try reconnecting to Nemotron again!"); 
             }
         });
     </script>
