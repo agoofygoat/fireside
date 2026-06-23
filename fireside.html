@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en" class="transition-colors duration-300">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fireside</title>
+    
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        },
+                        slate: {
+                            850: '#1e293b', 
+                        }
+                    },
+                    boxShadow: {
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'floating': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Typing Dots */
+        .typing-dot { animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        /* UI Elements */
+        .msg-user { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border-radius: 18px 18px 4px 18px; }
+        .msg-ai { background-color: #ffffff; color: #334155; border-radius: 18px 18px 18px 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .dark .msg-ai { background-color: #334155; color: #e2e8f0; box-shadow: none; border: 1px solid #475569; }
+        
+        .prose p { margin-bottom: 0.5rem; }
+        .prose ul { list-style-type: none; padding-left: 0; }
+        .prose li { position: relative; padding-left: 1.25rem; margin-bottom: 0.25rem; }
+        .prose li::before { content: ""; position: absolute; left: 0.25rem; top: 0.6rem; width: 4px; height: 4px; background-color: #ea580c; border-radius: 50%; }
+        .prose strong { color: #0f172a; font-weight: 600; }
+        .dark .prose strong { color: #f1f5f9; }
+        .prose a { color: #ea580c; text-decoration: underline; }
+        
+        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid #fed7aa; }
+        .dark .glass-nav { background: rgba(15, 23, 42, 0.95); border-top: 1px solid #334155; }
+        
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+        
+        /* Loading Overlay */
+        #auth-loading { position: absolute; inset: 0; background: #fff7ed; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; transition: opacity 0.5s ease-out; }
+        .dark #auth-loading { background: #0f172a; }
+        
+        html, body { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden; }
+        
+        /* Checkbox Styles */
+        .goal-check:checked + div { background-color: #10b981; border-color: #10b981; }
+        .goal-check:checked + div i { opacity: 1; transform: scale(1); }
+        .goal-text.completed { text-decoration: line-through; color: #9ca3af; }
+        .dark .goal-text.completed { color: #64748b; }
+
+        /* Sort Buttons */
+        .sort-btn.active { background-color: #1e293b; color: white; border-color: #1e293b; }
+        .dark .sort-btn.active { background-color: #f1f5f9; color: #0f172a; border-color: #f1f5f9; }
+
+        /* Wizard Steps */
+        .wizard-step { display: none; }
+        .wizard-step.active { display: block; animation: fadeIn 0.4s ease-out; }
+    </style>
+</head>
+<body class="bg-orange-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans antialiased transition-colors duration-300">
+
+    <div id="root-frame" class="w-full h-full relative overflow-hidden flex flex-col">
+
+        <div id="auth-loading">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mb-4"></div>
+            <p class="text-orange-800 dark:text-orange-400 font-bold animate-pulse">Initializing Fireside...</p>
+            <p id="error-log" class="text-red-500 text-xs mt-4 text-center px-4 hidden"></p>
+        </div>
+
+        <div id="onboarding-view" class="absolute inset-0 z-50 bg-gradient-to-br from-orange-400 to-red-600 overflow-y-auto hidden">
+            <div class="min-h-full w-full flex items-center justify-center p-4 py-10">
+                <div class="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-8 fade-in relative">
+                    
+                    <div class="mb-6 text-center">
+                        <div class="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center shadow-inner mb-3 mx-auto">
+                            <i class="fa-solid fa-fire text-orange-600 text-2xl"></i>
+                        </div>
+                        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Fireside</h1>
+                        <p class="text-xs text-slate-500 mt-1">Smart resource navigation.</p>
+                    </div>
+
+                    <div class="flex justify-center gap-2 mb-6">
+                        <div id="dot-1" class="w-2 h-2 rounded-full bg-orange-600 transition-colors"></div>
+                        <div id="dot-2" class="w-2 h-2 rounded-full bg-gray-200 transition-colors"></div>
+                        <div id="dot-3" class="w-2 h-2 rounded-full bg-gray-200 transition-colors"></div>
+                    </div>
+
+                    <form id="demographics-form" class="relative">
+                        
+                        <div id="step-1" class="wizard-step active">
+                            <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">Let's get to know you.</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">Display Name</label>
+                                    <input type="text" id="user-name" class="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm text-slate-900" placeholder="e.g. Alex" required>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-500 mb-1">Age</label>
+                                        <input type="number" id="user-age" class="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm text-slate-900" placeholder="Age" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-500 mb-1">Zip Code</label>
+                                        <input type="text" id="user-location" class="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm text-slate-900" placeholder="10001" inputmode="numeric" required>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="nextStep(2)" class="w-full bg-slate-800 text-white font-bold py-3 rounded-lg shadow hover:bg-slate-900 transition mt-2">Next <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                            </div>
+                        </div>
+
+                        <div id="step-2" class="wizard-step">
+                            <h3 class="text-lg font-bold text-slate-800 mb-2 text-center">Eligibility Check.</h3>
+                            <p class="text-xs text-slate-500 text-center mb-4">This helps us find aid you qualify for. Stored locally.</p>
+                            
+                            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 space-y-3">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-blue-700 mb-1 uppercase">Household Size</label>
+                                        <input type="number" id="user-size" class="w-full px-2 py-1.5 rounded border border-blue-200 text-sm focus:border-blue-500 outline-none text-slate-900" placeholder="1" value="1">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-blue-700 mb-1 uppercase">Annual Income ($)</label>
+                                        <input type="number" id="user-income" class="w-full px-2 py-1.5 rounded border border-blue-200 text-sm focus:border-blue-500 outline-none text-slate-900" placeholder="0" value="0">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-blue-700 mb-1 uppercase">Est. Taxes Paid ($)</label>
+                                    <input type="number" id="user-taxes" class="w-full px-2 py-1.5 rounded border border-blue-200 text-sm focus:border-blue-500 outline-none text-slate-900" placeholder="0" value="0">
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3 mt-4">
+                                <button type="button" onclick="nextStep(1)" class="flex-1 bg-white border border-gray-200 text-gray-600 font-bold py-3 rounded-lg hover:bg-gray-50 transition">Back</button>
+                                <button type="button" onclick="nextStep(3)" class="flex-[2] bg-slate-800 text-white font-bold py-3 rounded-lg shadow hover:bg-slate-900 transition">Next <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                            </div>
+                        </div>
+
+                        <div id="step-3" class="wizard-step">
+                            <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">What's your main goal?</h3>
+                            
+                            <div class="mb-6">
+                                <label class="block text-xs font-semibold text-slate-500 mb-2">I need help with...</label>
+                                <div class="relative">
+                                    <select id="user-issue" class="w-full px-4 py-3 rounded-xl bg-orange-50 border border-orange-200 focus:bg-white focus:border-brand-500 outline-none transition text-sm appearance-none font-medium text-slate-700">
+                                        <option value="unemployment">Career & Employment</option>
+                                        <option value="housing">Housing Stability</option>
+                                        <option value="food">Food Security</option>
+                                        <option value="healthcare">Healthcare Access</option>
+                                        <option value="debt">Financial Wellness</option>
+                                        <option value="disability">Disability Services</option>
+                                        <option value="legal">Legal Assistance</option>
+                                        <option value="childcare">Family Support</option>
+                                        <option value="other">General Assistance</option>
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-orange-400 text-xs pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <button type="button" onclick="nextStep(2)" class="flex-1 bg-white border border-gray-200 text-gray-600 font-bold py-3 rounded-lg hover:bg-gray-50 transition">Back</button>
+                                <button type="submit" class="flex-[2] bg-gradient-to-r from-orange-600 to-red-600 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-xl transform transition active:scale-[0.98]">
+                                    Start Journey
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-view" class="flex flex-col h-full hidden bg-orange-50 dark:bg-slate-900 relative overflow-hidden">
+            
+            <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-orange-100 dark:border-slate-800 z-10 px-4 py-3 flex justify-between items-center sticky top-0 transition-colors duration-300">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-sm">
+                        <i class="fa-solid fa-fire text-white text-xs"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-lg text-slate-900 dark:text-slate-100 tracking-tight block leading-none">Fireside</span>
+                        <span id="streak-display" class="text-[10px] text-orange-600 dark:text-orange-400 font-medium">🔥 Connected</span>
+                    </div>
+                </div>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-orange-100 dark:hover:bg-slate-800 text-orange-500 transition" title="Toggle Theme">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-yellow-400"></i>
+                </button>
+            </header>
+
+            <div class="flex-1 overflow-hidden relative">
+                
+                <div id="chat-section" class="h-full flex flex-col absolute inset-0 bg-orange-50/30 dark:bg-slate-900/30">
+                    <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4 pb-24 scroll-smooth"></div>
+                </div>
+
+                <div id="board-section" class="h-full overflow-y-auto p-4 absolute inset-0 hidden bg-orange-50 dark:bg-slate-900 pb-24">
+                    <div class="max-w-xl mx-auto space-y-6">
+                        <div id="progress-container" class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-orange-100 dark:border-slate-700 shadow-sm fade-in transition-colors duration-300">
+                            <div class="flex justify-between items-end mb-2">
+                                <div><h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">My Journey</h2><p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Track your interactions</p></div>
+                                <span id="progress-percent" class="text-2xl font-bold text-brand-600 dark:text-brand-500">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-2.5"><div id="progress-bar" class="bg-brand-500 h-2.5 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div></div>
+                        </div>
+                        <div id="board-intro" class="fade-in">
+                            <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-orange-100 dark:border-slate-700 shadow-card transition-colors duration-300">
+                                <div class="flex items-center space-x-2 mb-3"><div class="w-6 h-6 rounded-full bg-brand-100 dark:bg-brand-900/50 flex items-center justify-center"><i class="fa-solid fa-sparkles text-brand-600 dark:text-brand-400 text-xs"></i></div><h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">Daily Insight</h2></div>
+                                <p id="board-message" class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">Welcome to your dashboard. Chat with Fireside to populate localized recommendations.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between mt-2">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Action Plan</h3>
+                        </div>
+
+                        <div id="board-content" class="space-y-4">
+                            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-orange-100 dark:border-slate-700">
+                                <h4 class="font-bold text-sm text-slate-800 dark:text-white">Complete onboarding setup</h4>
+                                <p class="text-xs text-gray-500 mt-1">Chat with Fireside to fine-tune local programmatic support matches.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="backpack-section" class="h-full overflow-y-auto p-4 absolute inset-0 hidden bg-orange-50 dark:bg-slate-900 pb-24">
+                    <div class="max-w-xl mx-auto space-y-6 fade-in">
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-card border border-orange-100 dark:border-slate-700 transition-colors duration-300">
+                            <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">My Wallet</h2>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Digitize essential documents. Tap a slot to add, or tap a filled card to show.</p>
+                            
+                            <div id="backpack-progress" class="mb-6">
+                                <div class="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">
+                                    <span>Digital Readiness</span>
+                                    <span id="backpack-percent">33%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-2.5">
+                                    <div id="backpack-bar" class="bg-brand-500 h-2.5 rounded-full transition-all duration-500" style="width: 33%"></div>
+                                </div>
+                            </div>
+
+                            <div id="backpack-list" class="grid grid-cols-2 gap-3">
+                                <div class="p-3 border rounded-xl bg-orange-50/50 dark:bg-slate-800 border-orange-200 dark:border-slate-700">
+                                    <span class="text-xs font-bold block text-slate-700 dark:text-slate-300">Photo ID</span>
+                                    <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1 inline-block"><i class="fa-solid fa-circle-check"></i> Linked</span>
+                                </div>
+                                <div class="p-3 border rounded-xl bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+                                    <span class="text-xs font-bold block text-slate-400 dark:text-slate-500">Proof of Address</span>
+                                    <span class="text-[10px] text-gray-400 mt-1 inline-block">Empty Slot</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="wellness-section" class="h-full overflow-y-auto p-4 absolute inset-0 hidden bg-orange-50 dark:bg-slate-900 pb-24">
+                    <div class="max-w-xl mx-auto space-y-6 fade-in">
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-card border border-orange-100 dark:border-slate-700 text-center relative overflow-hidden transition-colors duration-300">
+                            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Daily Check-in</h2>
+                            <p id="checkin-subtitle" class="text-sm text-slate-500 dark:text-slate-400 mb-6">How are you feeling today?</p>
+                            <div id="mood-buttons" class="flex justify-between items-center px-2 mb-4">
+                                <button class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😫</div><span class="text-[10px] font-bold text-gray-400">Rough</span></button>
+                                <button class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😕</div><span class="text-[10px] font-bold text-gray-400">Okay</span></button>
+                                <button class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😐</div><span class="text-[10px] font-bold text-gray-400">Fine</span></button>
+                                <button class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">🙂</div><span class="text-[10px] font-bold text-gray-400">Good</span></button>
+                                <button class="flex flex-col items-center gap-1 group"><div class="text-3xl grayscale group-hover:grayscale-0 transition transform group-hover:scale-110">😁</div><span class="text-[10px] font-bold text-gray-400">Great</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="chat-input-area" class="bg-white dark:bg-slate-900 border-t border-orange-100 dark:border-slate-800 p-3 sticky bottom-[60px] z-20 shadow-sm transition-colors duration-300">
+                <form id="chat-form" class="flex gap-2 items-end">
+                    <button type="button" id="voice-btn" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition mb-[2px]"><i class="fa-solid fa-microphone"></i></button>
+                    <input type="text" id="chat-input" class="flex-1 bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-2xl px-4 py-3 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-brand-500 outline-none text-sm transition border border-gray-100 dark:border-slate-700 dark:placeholder-slate-500" placeholder="Type a message..." autocomplete="off">
+                    <button type="submit" class="bg-brand-600 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-brand-700 transition shadow-sm mb-[2px]"><i class="fa-solid fa-arrow-up text-sm"></i></button>
+                </form>
+            </div>
+
+            <nav class="glass-nav h-[60px] flex justify-around items-center z-30 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] transition-colors duration-300">
+                <button onclick="switchTab('chat')" id="tab-chat" class="flex flex-col items-center justify-center w-full h-full space-y-1 text-brand-600 transition-colors duration-200"><i class="fa-regular fa-message text-lg"></i><span class="text-[10px] font-medium">Chat</span></button>
+                <button onclick="switchTab('board')" id="tab-board" class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-brand-600 transition-colors duration-200"><i class="fa-regular fa-clipboard text-lg"></i><span class="text-[10px] font-medium">Bulletin</span></button>
+                <button onclick="switchTab('backpack')" id="tab-backpack" class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-brand-600 transition-colors duration-200"><i class="fa-solid fa-wallet text-lg"></i><span class="text-[10px] font-medium">Wallet</span></button>
+                <button onclick="switchTab('wellness')" id="tab-wellness" class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-400 hover:text-brand-600 transition-colors duration-200"><i class="fa-regular fa-heart text-lg"></i><span class="text-[10px] font-medium">Wellness</span></button>
+            </nav>
+
+        </div>
+    </div>
+
+    <script>
+        // Global User Demographics Store
+        let userProfile = { name: "User", age: "", zip: "", size: 1, income: 0, taxes: 0, goal: "other" };
+        let currentMessages = [];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Dismiss Loading View
+            setTimeout(() => {
+                document.getElementById('auth-loading').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('auth-loading').classList.add('hidden');
+                    document.getElementById('onboarding-view').classList.remove('hidden');
+                }, 500);
+            }, 800);
+
+            setupVoiceInput();
+        });
+
+        // Wizard steps management
+        function nextStep(stepNumber) {
+            document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active'));
+            document.querySelectorAll('[id^="dot-"]').forEach(dot => dot.className = 'w-2 h-2 rounded-full bg-gray-200 transition-colors');
+            
+            document.getElementById(`step-${stepNumber}`).classList.add('active');
+            document.getElementById(`dot-${stepNumber}`).className = 'w-2 h-2 rounded-full bg-orange-600 transition-colors';
+        }
+
+        // Dark Mode Handler
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // Tab Switching Handler
+        function switchTab(tabId) {
+            const sections = ['chat', 'board', 'backpack', 'wellness'];
+            sections.forEach(s => {
+                document.getElementById(`${s}-section`).classList.add('hidden');
+                const btn = document.getElementById(`tab-${s}`);
+                btn.classList.remove('text-brand-600');
+                btn.classList.add('text-gray-400');
+            });
+
+            document.getElementById(`${tabId}-section`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).classList.add('text-brand-600');
+            document.getElementById(`tab-${tabId}`).classList.remove('text-gray-400');
+
+            // Hide or show lower chat text container bar conditionally
+            if (tabId === 'chat') {
+                document.getElementById('chat-input-area').classList.remove('hidden');
+            } else {
+                document.getElementById('chat-input-area').classList.add('hidden');
+            }
+        }
+
+        // Capture Demographic Information
+        document.getElementById('demographics-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            userProfile.name = document.getElementById('user-name').value || "User";
+            userProfile.age = document.getElementById('user-age').value;
+            userProfile.zip = document.getElementById('user-location').value;
+            userProfile.size = document.getElementById('user-size').value;
+            userProfile.income = document.getElementById('user-income').value;
+            userProfile.taxes = document.getElementById('user-taxes').value;
+            userProfile.goal = document.getElementById('user-issue').value;
+
+            document.getElementById('onboarding-view').classList.add('hidden');
+            document.getElementById('app-view').classList.remove('hidden');
+
+            // Set up context baseline
+            const initialGreeting = `Hello **${userProfile.name}**! I've set your primary navigation focus area to **${userProfile.goal}** inside the **${userProfile.zip}** region. How can I help you find stability or specific local aid programs today?`;
+            addMessage('ai', initialGreeting);
+        });
+
+        // Append UI Chat bubbles
+        function addMessage(sender, text) {
+            const container = document.getElementById('chat-container');
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex w-full ${sender === 'user' ? 'justify-end' : 'justify-start'} fade-in mb-4`;
+            
+            const msgBubble = document.createElement('div');
+            msgBubble.className = `max-w-[80%] p-3 text-sm prose ${sender === 'user' ? 'msg-user' : 'msg-ai'}`;
+            msgBubble.innerHTML = marked.parse(text);
+            
+            wrapper.appendChild(msgBubble);
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Show a quick typing loader
+        function showTypingIndicator() {
+            const container = document.getElementById('chat-container');
+            const wrapper = document.createElement('div');
+            wrapper.id = "typing-indicator";
+            wrapper.className = "flex w-full justify-start fade-in mb-4";
+            wrapper.innerHTML = `
+                <div class="msg-ai p-3 flex items-center space-x-1">
+                    <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
+                </div>`;
+            container.appendChild(wrapper);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        // Core Conversation Submit Hook matching api.js proxy route
+        document.getElementById('chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const inputEl = document.getElementById('chat-input');
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            addMessage('user', text);
+            inputEl.value = '';
+
+            // Inject structural demographic profile contexts contextually
+            const systemContext = `You are Fireside, an empathetic smart navigation assistant. The user is ${userProfile.name}, aged ${userProfile.age}, living in ZIP code ${userProfile.zip}. Household size: ${userProfile.size}, Annual Income: $${userProfile.income}, Goal context: ${userProfile.goal}. Focus on guiding them to localized programs, legal rights, and actionable assistance steps. Use clean Markdown elements.`;
+
+            // Setup messages format for NIM API array structure
+            if (currentMessages.length === 0) {
+                currentMessages.push({ role: "system", content: systemContext });
+            }
+            currentMessages.push({ role: "user", content: text });
+
+            showTypingIndicator();
+
+            try {
+                // Pointing securely to the local api.js endpoint proxy
+                const response = await fetch("/api", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ messages: currentMessages })
+                });
+
+                if (!response.ok) throw new Error("Serverless API execution failed.");
+
+                const data = await response.json();
+                removeTypingIndicator();
+
+                // Extract choice text block matching the proxy payload response schema
+                const aiReply = data.choices[0].message.content;
+                addMessage('ai', aiReply);
+                currentMessages.push({ role: "assistant", content: aiReply });
+
+            } catch (error) {
+                console.error("Fireside Connection Error:", error);
+                removeTypingIndicator();
+                addMessage('ai', "I am having trouble processing that request right now. Please ensure your `FIRE_API_KEY` is completely specified inside your Vercel deployment variables framework.");
+            }
+        });
+
+        // Speech recognition loop
+        function setupVoiceInput() {
+            const btn = document.getElementById('voice-btn');
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const rec = new SR();
+                rec.lang = 'en-US';
+                let isListening = false;
+
+                rec.onresult = (e) => {
+                    document.getElementById('chat-input').value = e.results[0][0].transcript;
+                    document.getElementById('chat-input').focus();
+                };
+                rec.onstart = () => { isListening = true; btn.classList.add('text-red-500', 'animate-pulse'); };
+                rec.onend = () => { isListening = false; btn.classList.remove('text-red-500', 'animate-pulse'); };
+                
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (isListening) { rec.stop(); } else { try { rec.start(); } catch(err) { rec.stop(); } }
+                });
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
